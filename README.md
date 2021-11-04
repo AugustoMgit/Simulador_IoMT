@@ -24,7 +24,7 @@ abaixo e os valores possíveis ao final do documento:
 
 * Valores Possíveis cada uma das medidas
     - Pressão Arterial: 
-        - Valores Possíveis [0, 100]
+        - Valores Possíveis [0, 300]
         - Sistólica [110, 129] e Diastólica [70, 84]
     - Frequência Cardíaca: 
         - Valores Possíveis [0, 200]
