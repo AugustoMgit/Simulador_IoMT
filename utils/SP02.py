@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timedelta, time
 import matplotlib.pyplot as plt
 import pandas as pd
+import mysql.connector
 
 def FrequenciaCardiaca(qtValores):
     normais = int(qtValores * 0.8)
@@ -20,12 +21,21 @@ def FrequenciaCardiaca(qtValores):
 
 
 def SP02(qtValores, minMinutos, MaxMinutos):
+    database = mysql.connector.connect(host="localhost", user="root", password="", database = "iomt")
+    sql = "INSERT INTO dadoscoletados (usuario, valor1, valor2, dataHora, tipo) VALUES (%s, %s, %s, %s, %s)"
+
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
     minutes = 0
     today = datetime.today()
-    date = datetime(today.year, today.month, today.day, 8, 30, 0)
+    mes = random.randint(1, 12)
+    dia = random.randint(1, 30)
+
+    if (mes == 2 and dia >= 28):
+        dia = 28
+
+    date = datetime(today.year, mes, dia, random.randint(6, 10), random.randint(0, 59), 0)
 
     # Gerando os valores normais
     valoresNormais = np.random.uniform(90, 100, normais)
@@ -52,8 +62,17 @@ def SP02(qtValores, minMinutos, MaxMinutos):
 
         dataPlot.append(tuple((dateTime, valores[i], frequenciaCardiaca[i])))
 
-    df = pd.DataFrame(dataPlot, columns=['Data', 'SP02', 'FrequenciaCardiaca'])
+        cursor = database.cursor()
+        val = (4, valores[i], frequenciaCardiaca[i], dateTime, "SP02")
+        cursor.execute(sql, val)
 
+        database.commit()
+        cursor.close()
+
+
+    database.close()
+
+    df = pd.DataFrame(dataPlot, columns=['Data', 'SP02', 'FrequenciaCardiaca'])
     plt.plot(df.Data, df.SP02, label='SP02', color = 'red')
     plt.plot(df.Data, df.FrequenciaCardiaca, label='Frequencia Cardiaca', color = 'blue')
 
