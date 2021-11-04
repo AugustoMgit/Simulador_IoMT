@@ -36,11 +36,11 @@ abaixo e os valores possíveis ao final do documento:
         - Valores Possíveis [30, 45]
         - Temperatura Corporal normal [36, 37.5]
 
-* Programa para cadastro de medidas (dadoscoletados) (João e Vitor)
+### Programa para cadastro de medidas (dadoscoletados) (João e Vitor)
 Um programa que deverá se comunicar com o serviço web para dados simulados. A interface
 (gráfica/texto/web) desse programa bem como a linguagem as ser utilizada é de livre escolha. O programa deve fornecer uma forma de escolher a ação a ser realizada (menu) e proporcionar interface para que os dados possam ser manipulados.
 
-* Aplicação computacional para detectar situações específicas (William)
+### Aplicação computacional para detectar situações específicas (William)
 Criar um programa que efetue uma pesquisa entre os dados coletados, alertando para situações
 específicas. Os alertas podem ser visuais na tela ou em outra interface (móvel por exemplo).
     - Situação 1: analisando os dados de um (1) usuário, caso sua temperatura corporal seja maior que 37,5 graus ou menor que 35 graus. Além disso, para caracterizar essa situação, a saturação de oxigênio no sangue (SPO2) deve ser menor que 90. Os registros de temperatura e SPO2 devem estar próximos, com no máximo 1 (uma) hora de diferença.
@@ -48,6 +48,9 @@ específicas. Os alertas podem ser visuais na tela ou em outra interface (móvel
 
 ### Arquitetura da Aplicação
 <img src="./images/SD_Arquitetura_APP.png">
+
+### Diagrama de Classes
+<img src="./images/SD_DC_Usuario.png">
 
 ### Arquitetura do Banco de Dados
 <img src="./images/SD_Arquitetura_BD.png">
