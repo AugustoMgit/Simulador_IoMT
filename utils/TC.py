@@ -1,6 +1,7 @@
 import numpy as np
 import random
 from datetime import datetime, timedelta, time
+import matplotlib.pyplot as plt
 
 def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
@@ -18,23 +19,24 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
     valoresAnormais2 = np.random.uniform(37.6, 45, int(anormais / 2))
     valoresAnormais = np.concatenate((valoresAnormais1, valoresAnormais2))
 
-    for i in range(len(valoresNormais)):
-        valoresNormais[i] = round(valoresNormais[i], 2)
+    valores = np.concatenate((valoresNormais, valoresAnormais))
+    np.random.shuffle(valores)
+
+    dataPlot = []
+    for i in range(len(valores)):
+        valores[i] = round(valores[i], 2)
         minutes +=random.randint(minMinutos, MaxMinutos)
         delta = timedelta(minutes=minutes)
         dateTime = (date + delta)
 
-        print(dateTime)
+        dataPlot.append(tuple((dateTime, valores[i])))
 
-    print("\n")
-    date = datetime(today.year, today.month, today.day, 13, 30, 0)
-    minutes = 0
-    for i in range(len(valoresAnormais)):
-        valoresAnormais[i] = round(valoresAnormais[i], 2)
-        minutes +=random.randint(minMinutos, MaxMinutos)
-        delta = timedelta(minutes=minutes)
-        dateTime = (date + delta)
-        print(dateTime)
+    plt.plot(*zip(*dataPlot))
+    plt.title("Temperatura Corporal " + datetime.today().strftime('%Y-%m-%d'))
+    plt.ylabel("°C")
+    plt.xlabel("Hora")
+
+    plt.savefig('../images/plots/TC.png')
 
 
 TemperaturaCorporal(20, 5, 60)
