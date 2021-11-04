@@ -35,7 +35,7 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
     plt.title("Temperatura Corporal " + datetime.today().strftime('%Y-%m-%d'))
     plt.ylabel("°C")
     plt.xlabel("Hora")
-
+    plt.legend(["Temperatura Corporal"])
     plt.savefig('../images/plots/TC.png')
 
 
