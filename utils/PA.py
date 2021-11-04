@@ -21,4 +21,4 @@ def PA(qtValores, minMinutos, MaxMinutos):
     print(sistolicaAnormais, diastolicaAnormais)
 
 
-PA(80, 30, 120)
+#PA(80, 30, 120)

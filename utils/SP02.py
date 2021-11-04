@@ -32,4 +32,4 @@ def SP02(qtValores, minMinutos, MaxMinutos):
     frequenciaCardiacaAnormais = frequenciaCardiaca[1]
 
 
-SP02(40, 0, 60)
+#SP02(40, 0, 60)
