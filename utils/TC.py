@@ -12,7 +12,5 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
     valoresAnormais2 = np.random.uniform(37.6, 45, int(anormais / 2))
     valoresAnormais = np.concatenate((valoresAnormais1, valoresAnormais2))
 
-    print(valoresAnormais)
-
 
 TemperaturaCorporal(40, 0, 60)

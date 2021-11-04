@@ -10,8 +10,14 @@ def PA(qtValores, minMinutos, MaxMinutos):
     print(sistolicaNormal, diastolicaNormal)
 
     # Gerando os valores anormais
-    sistolicaAnormais = np.random.randint(0, 109, anormais)
-    diastolicaAnormais = np.random.randint(0, 69, anormais)
+    sistolicaAnormais1 = np.random.randint(0, 109, int(anormais / 2))
+    sistolicaAnormais2 = np.random.randint(130, 300, int(anormais / 2))
+    sistolicaAnormais = np.concatenate((sistolicaAnormais1, sistolicaAnormais2))
+
+    diastolicaAnormais1 = np.random.randint(0, 69, int(anormais / 2))
+    diastolicaAnormais2 = np.random.randint(85, 300, int(anormais / 2))
+    diastolicaAnormais = np.concatenate((diastolicaAnormais1, diastolicaAnormais2))
+
     print(sistolicaAnormais, diastolicaAnormais)
 
 
