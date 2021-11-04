@@ -49,7 +49,7 @@ específicas. Os alertas podem ser visuais na tela ou em outra interface (móvel
 ### Arquitetura da Aplicação
 <img src="./images/SD_Arquitetura_APP.png">
 
-### Arquiteura do Banco de Dados
+### Arquitetura do Banco de Dados
 <img src="./images/SD_Arquitetura_BD.png">
 
 ### Tecnlogias Utilizadas
