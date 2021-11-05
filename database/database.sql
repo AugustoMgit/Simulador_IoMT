@@ -21,3 +21,16 @@ CREATE TABLE IF NOT EXISTS DadosColetados (
 	PRIMARY KEY (id),
 	FOREIGN KEY (usuario) REFERENCES usuario(id) ON UPDATE CASCADE
 );
+
+-- Verifica Situação 1
+SELECT dc.usuario, dc.valor1 AS 'temperaturaCorporal', sub.valor1 AS 'SP02', sub.dataHora, dc.dataHora,
+		ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) AS diffHoras
+FROM DadosColetados dc
+JOIN (
+	SELECT dc1.*
+	FROM DadosColetados dc1
+	WHERE dc1.usuario = 4 AND dc1.tipo = 'SP02' AND dc1.valor1 < 90
+) AS sub ON sub.usuario = dc.usuario 
+WHERE dc.usuario = 4 AND dc.tipo = 'TC' AND dc.valor1 NOT BETWEEN 35 AND 37.5
+HAVING ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) < 60;
+
