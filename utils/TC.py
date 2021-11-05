@@ -12,13 +12,7 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
 
     minutes = 0
     today = datetime.today()
-    mes = random.randint(1, 12)
-    dia = random.randint(1, 30)
-
-    if (mes == 2 and dia >= 28):
-        dia = 28
-
-    date = datetime(today.year, mes, dia, random.randint(6, 10), random.randint(0, 59), 0)
+    date = datetime(today.year, today.month, today.day, random.randint(6, 10), random.randint(0, 59), 0)
 
     # Gerando os valores normais
     valoresNormais = np.random.uniform(36, 37.5, normais)
