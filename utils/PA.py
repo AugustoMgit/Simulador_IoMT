@@ -21,11 +21,10 @@ def PA(qtValores, minMinutos, MaxMinutos):
         dia = 28
 
     date = datetime(today.year, mes, dia, random.randint(6, 10), random.randint(0, 59), 0)
-
     # Gerando os valores normais
     sistolicaNormal = np.random.randint(110, 129, normais)
     diastolicaNormal = np.random.randint(70, 84, normais)
-    pressaoNormal = np.concatenate((sistolicaNormal, diastolicaNormal))
+    pressaoNormal = pd.DataFrame({"Sistolica": sistolicaNormal, "Diastolica": diastolicaNormal})
 
     # Gerando os valores anormais
     sistolicaAnormais1 = np.random.randint(0, 109, int(anormais / 2))
@@ -36,22 +35,21 @@ def PA(qtValores, minMinutos, MaxMinutos):
     diastolicaAnormais2 = np.random.randint(85, 300, int(anormais / 2))
     diastolicaAnormais = np.concatenate((diastolicaAnormais1, diastolicaAnormais2))
 
-    pressaoAnormal = np.concatenate((sistolicaAnormais, diastolicaAnormais))
+    pressaoAnormal = pd.DataFrame({"Sistolica": sistolicaAnormais, "Diastolica": diastolicaAnormais})
 
     # Gerando os valores de PA
-    valores = np.concatenate((pressaoNormal, pressaoAnormal))
-    np.random.shuffle(valores)
+    valores = pd.concat([pressaoNormal, pressaoAnormal])
+    valores = valores.sample(frac=1).reset_index(drop=True)
 
     dataPlot = []
     for i in range(len(valores)):
-        valores[i] = round(valores[i], 2)
         minutes += random.randint(minMinutos, MaxMinutos)
         delta = timedelta(minutes=minutes)
         dateTime = (date + delta)
-        dataPlot.append(tuple([dateTime, valores[i]]))
+        dataPlot.append(tuple([dateTime, valores.Sistolica[i], valores.Diastolica[i]]))
 
         cursor = database.cursor()
-        val = (2, int(valores[i]), None, dateTime, "PA")
+        val = (3, int(valores.Sistolica[i]), int(valores.Diastolica[i]), datetime.strftime(dateTime, '%Y-%m-%d %H:%M:%S'), "PA")
         cursor.execute(sql, val)
 
         database.commit()
@@ -59,9 +57,9 @@ def PA(qtValores, minMinutos, MaxMinutos):
 
     database.close()
 
-    df = pd.DataFrame(dataPlot, columns=['Data', 'PA'])
-    plt.plot(df['Data'], df['PA'])
-    plt.ylabel("%")
+    df = pd.DataFrame(dataPlot, columns=['Data', 'Sistolica', 'Diastolica'])
+    plt.plot(df['Data'], df['Sistolica'], 'r-', label='Sistolica', color = 'red')
+    plt.plot(df['Data'], df['Diastolica'], 'r-', label='Diastolica', color = 'blue')
     plt.xlabel("Hora")
     plt.legend()
     plt.savefig('../images/plots/PA.png')
