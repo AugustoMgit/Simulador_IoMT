@@ -164,7 +164,7 @@ def insertDados():
         #return jsonify({"ERROR":"Insira o valor 1", "Status":0})
     valor2 = request.form.get('valor2')
     if valor2 == '' or valor2 == None:
-		valor2 = ''
+		valor2 = '' 
         #s_error +='Insira o valor 2. '
         #return jsonify({"ERROR":"Insira o valor 2", "Status":0})
     tipo = request.form.get('tipo')
