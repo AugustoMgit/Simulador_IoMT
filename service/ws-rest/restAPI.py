@@ -164,13 +164,14 @@ def insertDados():
         #return jsonify({"ERROR":"Insira o valor 1", "Status":0})
     valor2 = request.form.get('valor2')
     if valor2 == '' or valor2 == None:
-        s_error +='Insira o valor 2. '
+		valor2 = ''
+        #s_error +='Insira o valor 2. '
         #return jsonify({"ERROR":"Insira o valor 2", "Status":0})
     tipo = request.form.get('tipo')
     if tipo == '' or tipo == None:
         s_error +='Insira o tipo.'
         #return jsonify({"ERROR":"Insira o tipo", "Status":0})
-    if len(s_error) > 1:return jsonify({"ERROR":s_error, "Status":0})
+    if len(s_error) > 1:return jsonify({"ERROR":s_error.strip(), "Status":0})
     r = c.addDados(user, valor1, valor2, tipo)
     return jsonify(r)
 
