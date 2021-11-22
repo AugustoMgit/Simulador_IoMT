@@ -39,8 +39,9 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
         }
 
         response = requests.put(URL_BASE + "/add", data=dados)
-        if (response.status_code != 200)
+        if (response.status_code != 200):
             return 'Ocorreu um erro!'
 
+    return ('Dados inseridos com sucesso!')
 
 #TemperaturaCorporal(20, 5, 60)
