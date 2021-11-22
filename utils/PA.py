@@ -52,4 +52,4 @@ def PA(qtValores, minMinutos, MaxMinutos):
             return 'Ocorreu um erro!'
 
 
-PA(20, 30, 120)
+#PA(20, 30, 120)

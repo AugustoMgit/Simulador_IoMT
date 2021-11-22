@@ -64,4 +64,4 @@ def SP02(qtValores, minMinutos, MaxMinutos):
             return 'Ocorreu um erro!'
 
 
-SP02(20, 5, 60)
+#SP02(20, 5, 60)
