@@ -1,6 +1,7 @@
 <template>
-  <div>
-      <h1>Home</h1>
+  <div class="text-center">
+      <h1>Internet of Medical Things Simulator</h1>
+      
   </div>
 </template>
 

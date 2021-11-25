@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-page">
     <TopBar />
     <Content />
     <Footer />
@@ -19,5 +19,7 @@ export default {
 </script>
 
 <style>
-
+.main-page {
+  background-color: rgba(255, 255, 255, 0.418);
+}
 </style>

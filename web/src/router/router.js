@@ -7,7 +7,6 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'MainPage',
     component: MainPage,
     children: [
       {
@@ -16,9 +15,9 @@ const routes = [
         component: () => import('@/views/Home.vue')
       },
       {
-        path: '/register-user',
-        name: 'registerUser',
-        component: () => import('@/views/RegisterUser.vue')
+        path: '/users',
+        name: 'users',
+        component: () => import('@/views/Users.vue')
       }
     ]
   }
