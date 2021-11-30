@@ -46,18 +46,34 @@ específicas. Os alertas podem ser visuais na tela ou em outra interface (móvel
 * Situação 1: analisando os dados de um (1) usuário, caso sua temperatura corporal seja maior que 37,5 graus ou menor que 35 graus. Além disso, para caracterizar essa situação, a saturação de oxigênio no sangue (SPO2) deve ser menor que 90. Os registros de temperatura e SPO2 devem estar próximos, com no máximo 1 (uma) hora de diferença.
 * Situação 2: analisando os dados de um usuário, caso sua pressão arterial aumente pelo menos 10 pontos, na sistólica ou diastólica, em três medições consecutivas dentro de 24 horas;
 
-### Arquitetura da Aplicação
-<img src="./images/SD_Arquitetura_APP.png">
-
-### Diagrama de Classes
-<img src="./images/SD_DC_Usuario.png">
-
-### Arquitetura do Banco de Dados
-<img src="./images/SD_Arquitetura_BD.png">
-
 ### Tecnlogias Utilizadas
 - Python
 - MySQL
 - VUE
 - SOAP
 - REST
+
+### Arquitetura da Aplicação
+<br>
+
+> Mapeamento da arquitetura
+<img src="./images/SD_Arquitetura_APP.png">
+
+<br>
+
+> Diagrama de Classes  
+<img src="./images/SD_DC_Usuario.png">
+
+<br>
+
+> Arquitetura do Banco de Dados   
+<img src="./images/SD_Arquitetura_BD.png">
+
+<br>
+
+### Esboço de Interface
+> Consumir serviços para geração aleatórios dos dados do simulador
+<img src="./images/SD_INTERFACE_SIMULADOR.png">
+
+> Cadastrar manualmente os dados coletados
+<img src="./images/SD_INTERFACE_DADOSCOLETADOS.png">
