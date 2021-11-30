@@ -1,14 +1,11 @@
 import numpy as np
 import random
 from datetime import datetime, timedelta, time
-import matplotlib.pyplot as plt
 import pandas as pd
-import mysql.connector
+import json, requests
+URL_BASE = "http://localhost:5000/api"
 
 def PA(qtValores, minMinutos, MaxMinutos):
-    database = mysql.connector.connect(host="localhost", user="root", password="", database = "iomt")
-    sql = "INSERT INTO dadoscoletados (usuario, valor1, valor2, dataHora, tipo) VALUES (%s, %s, %s, %s, %s)"
-
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -36,28 +33,24 @@ def PA(qtValores, minMinutos, MaxMinutos):
     valores = pd.concat([pressaoNormal, pressaoAnormal])
     valores = valores.sample(frac=1).reset_index(drop=True)
 
-    dataPlot = []
     for i in range(len(valores)):
         minutes += random.randint(minMinutos, MaxMinutos)
         delta = timedelta(minutes=minutes)
         dateTime = (date + delta)
-        dataPlot.append(tuple([dateTime, valores.Sistolica[i], valores.Diastolica[i]]))
 
-        cursor = database.cursor()
-        val = (3, int(valores.Sistolica[i]), int(valores.Diastolica[i]), datetime.strftime(dateTime, '%Y-%m-%d %H:%M:%S'), "PA")
-        cursor.execute(sql, val)
+        # chamar ws-rest
+        dados =  {
+                  "id_user": 1,
+                  "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
+                  "valor1": valores.iloc[i]["Sistolica"],
+                  "valor2": valores.iloc[i]["Diastolica"],
+                  "tipo": "PA"
+                }
 
-        database.commit()
-        cursor.close()
+        response = requests.put(URL_BASE + "/add", data=dados)
+        if (response.status_code != 200):
+            return 'Ocorreu um erro!'
 
-    database.close()
-
-    df = pd.DataFrame(dataPlot, columns=['Data', 'Sistolica', 'Diastolica'])
-    plt.plot(df['Data'], df['Sistolica'], 'r-', label='Sistolica', color = 'red')
-    plt.plot(df['Data'], df['Diastolica'], 'r-', label='Diastolica', color = 'blue')
-    plt.xlabel("Hora")
-    plt.legend()
-    plt.savefig('../images/plots/PA.png')
-
+    return ('Dados inseridos com sucesso!')
 
 PA(20, 30, 120)

@@ -1,9 +1,8 @@
 import numpy as np
 import random
 from datetime import datetime, timedelta, time
-import matplotlib.pyplot as plt
-import pandas as pd
-import mysql.connector
+
+URL_BASE = "http://localhost:5000/api"
 
 def FrequenciaCardiaca(qtValores):
     normais = int(qtValores * 0.8)
@@ -21,9 +20,6 @@ def FrequenciaCardiaca(qtValores):
 
 
 def SP02(qtValores, minMinutos, MaxMinutos):
-    database = mysql.connector.connect(host="localhost", user="root", password="", database = "iomt")
-    sql = "INSERT INTO dadoscoletados (usuario, valor1, valor2, dataHora, tipo) VALUES (%s, %s, %s, %s, %s)"
-
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -47,7 +43,6 @@ def SP02(qtValores, minMinutos, MaxMinutos):
     valores = np.concatenate((valoresNormais, valoresAnormais))
     np.random.shuffle(valores)
 
-    dataPlot = []
     for i in range(len(valores)):
         valores[i] = round(valores[i], 2)
         frequenciaCardiaca[i] = round(frequenciaCardiaca[i], 2)
@@ -55,25 +50,19 @@ def SP02(qtValores, minMinutos, MaxMinutos):
         delta = timedelta(minutes=minutes)
         dateTime = (date + delta)
 
-        dataPlot.append(tuple((dateTime, valores[i], frequenciaCardiaca[i])))
+        # chamar ws-rest
+        dados = {
+                  "id_user": 1,
+                  "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
+                  "valor1": valores[i],
+                  "valor2": frequenciaCardiaca[i],
+                  "tipo": "SP02"
+                }
 
-        cursor = database.cursor()
-        val = (4, valores[i], frequenciaCardiaca[i], dateTime, "SP02")
-        cursor.execute(sql, val)
+        response = requests.put(URL_BASE + "/add", data=dados)
+        if (response.status_code != 200):
+            return 'Ocorreu um erro!'
 
-        database.commit()
-        cursor.close()
+    return ('Dados inseridos com sucesso!')
 
-
-    database.close()
-
-    df = pd.DataFrame(dataPlot, columns=['Data', 'SP02', 'FrequenciaCardiaca'])
-    plt.plot(df.Data, df.SP02, label='SP02', color = 'red')
-    plt.plot(df.Data, df.FrequenciaCardiaca, label='Frequencia Cardiaca', color = 'blue')
-
-    plt.ylabel("%")
-    plt.xlabel("Hora")
-    plt.legend()
-    plt.savefig('../images/plots/SP02.png')
-
-SP02(20, 5, 60)
+#SP02(20, 5, 60)
