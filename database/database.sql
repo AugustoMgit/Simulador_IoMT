@@ -31,6 +31,10 @@ JOIN (
 	FROM DadosColetados dc1
 	WHERE dc1.usuario = 4 AND dc1.tipo = 'SP02' AND dc1.valor1 < 90
 ) AS sub ON sub.usuario = dc.usuario 
-WHERE dc.usuario = 4 AND dc.tipo = 'TC' AND dc.valor1 NOT BETWEEN 35 AND 37.5
+WHERE dc.usuario = :id_user AND dc.tipo = 'TC' AND dc.valor1 NOT BETWEEN 35 AND 37.5
 HAVING ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) < 60;
 
+-- SQL PARA DASHBOARD
+SELECT d.dataHora, d.valor1 AS sp02, d.valor2 AS frequnciaCardiaca
+FROM dadoscoletados d 
+WHERE tipo = 'SP02' AND usuario = :id_user
