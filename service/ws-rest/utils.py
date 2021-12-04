@@ -159,20 +159,32 @@ def TemperaturaCorporal(id_user, qtValores, minMinutos, MaxMinutos):
 
 def verificarSituacoesEspecificas1(id_user):
     # Verificar se existe alguma situação especifica
+    msg = ""
     response = requests.get(URL_BASE + "/dadosSituacao1/" + str(id_user))
     if (response.status_code != 200):
         return 'Ocorreu um erro!'
 
     situacoesEspecificas = json.loads(response.text)
-    print(situacoesEspecificas)
+
     ### chamar end point para enviar email...
     if (situacoesEspecificas['len'] > 0):
-        return 'Atenção!!! Sua temperatura corporal mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+        msg = 'Atenção!!! Sua temperatura corporal mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
     else:
-        return 'Sua Temperatura Corporal está normal! Parabéns!'
+        msg = 'Sua Temperatura Corporal está normal! Parabéns!'
+
+    dados = {
+        'id_user': id_user,
+        'msg': msg
+    }
+
+    response = requests.post(URL_BASE + "/emailsituacoesEspecificas", data=dados)
+    if (response.status_code != 200):
+        print (response.text)
+
 
 def verificarSituacoesEspecificas2(id_user):
     # Verificar se existe alguma situação especifica
+    msg = ""
     response = requests.get(URL_BASE + "/dadosSituacao2/" + str(id_user))
     if (response.status_code != 200):
         return 'Ocorreu um erro!'
@@ -188,14 +200,24 @@ def verificarSituacoesEspecificas2(id_user):
     
     ### chamar end point para enviar email...
     if (abs(diastolica[0] - diastolica[1]) > 10 and abs(diastolica[1] - diastolica[2]) > 10):
-        return 'Atenção!!! Sua pressão arterial diastolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+        msg = 'Atenção!!! Sua pressão arterial diastolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
 
     if (abs(sistolica[0] - sistolica[1]) > 10 and abs(sistolica[1] - sistolica[2]) > 10):
-        return 'Atenção!!! Sua pressão arterial sistolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+        msg = 'Atenção!!! Sua pressão arterial sistolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+
+    if (msg != ""):
+        dados = {
+            "id_user": id_user,
+            "msg": msg
+        }
+
+        response = requests.post(URL_BASE + "/emailsituacoesEspecificas", data=dados)
+        if (response.status_code != 200):
+            return 'Ocorreu um erro!'
 
 
 def verificarSituacoesEspecificas(id_user):
     verificarSituacoesEspecificas1(id_user)
-    verificarSituacoesEspecificas2(id_user)
+    #verificarSituacoesEspecificas2(id_user)
 
 
