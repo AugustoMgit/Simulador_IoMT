@@ -1,12 +1,14 @@
 from typing import Tuple
+import logging
 from spyne import Application, rpc, ServiceBase, Unicode, Iterable
 from spyne.model.complex import Array, ComplexModel, ComplexModelBase
 from spyne.protocol.soap import Soap12
 from spyne.server.wsgi import WsgiApplication
+from spyne.protocol.xml import XmlDocument
+from spyne.protocol.http import HttpRpc
 from wsgiref.simple_server import make_server
 import json
 import pymysql
-
 
 class BD(object):
 
@@ -28,51 +30,59 @@ class BD(object):
 
 c = BD()
 
+
 class Usuarios(ServiceBase):
 
-    @rpc(Unicode, Unicode, Unicode, _returns=int)
-    def addUser(self, nome, nascimento, sexo):
-        print("opaa")
-        conexao = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
-        cursor_add = conexao.cursor()
-        sql = "INSERT INTO usuario (nome, nascimento, sexo) VALUES (%s, %s, %s)"
-        data = (nome,nascimento,sexo)
-        cursor_add.execute(sql, data)
-        conexao.commit()
-        cursor_add.close()
-        conexao.close()
-        return 1
+    @rpc(Unicode, Unicode, Unicode, Unicode, _returns=int)
+    def addUser(self, nome, nascimento, sexo, email):
+        try:
+            conexao = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+            cursor_add = conexao.cursor()
+            sql = "INSERT INTO usuario (nome, nascimento, sexo, email) VALUES (%s, %s, %s, %s)"
+            data = (nome,nascimento,sexo, email)
+            cursor_add.execute(sql, data)
+            conexao.commit()
+            cursor_add.close()
+            conexao.close()
+            return 1
+        except: return 0
 
     @rpc(int, Unicode, Unicode, Unicode, _returns=int)
     def alterInfosUser(self, id_user, name='', nascimento='', sexo=''):
         #usuário não existe? se não, retorna 0. Caso contrário, retorna 1 (deu certo)
         if c.verifyExists(id_user) == 0: return 0
-        connection = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
-        cursor = connection.cursor()
-        data = ()
-        sql_parcial = "UPDATE usuario SET"
-        if name != '':
-            sql_parcial +=  " nome = %s" 
-            data = data + (name,)
-        if nascimento != '':
-            if 'nome' in sql_parcial:sql_parcial +=','
-            sql_parcial += " nascimento = %s"
-            data = data + (nascimento,)
-        if sexo != '':
-            if 'nome' in sql_parcial or 'nascimento' in sql_parcial:sql_parcial +=','
-            sql_parcial += " sexo = %s"
-            data = data + (sexo,)
-        sql_completo = sql_parcial + ' WHERE id = %s'
-        data = data + (str(id_user),)
-        cursor.execute(sql_completo, data)
-        connection.commit()
-        cursor.close()
-        connection.close()
-        return 1
+        try:
+            connection = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+            cursor = connection.cursor()
+            data = ()
+            sql_parcial = "UPDATE usuario SET"
+            if name != '':
+                sql_parcial +=  " nome = %s" 
+                data = data + (name,)
+            if nascimento != '':
+                if 'nome' in sql_parcial:sql_parcial +=','
+                sql_parcial += " nascimento = %s"
+                data = data + (nascimento,)
+            if sexo != '':
+                if 'nome' in sql_parcial or 'nascimento' in sql_parcial:sql_parcial +=','
+                sql_parcial += " sexo = %s"
+                data = data + (sexo,)
+            #if dataHora != '':
+            #    if 'nome' in sql_parcial or 'nascimento' in sql_parcial or 'sexo' in sql_parcial:sql_parcial +=','
+            #    sql_parcial += " dataHora = %s"
+            #    data = data + (dataHora,)
+            sql_completo = sql_parcial + ' WHERE id = %s'
+            data = data + (str(id_user),)
+            cursor.execute(sql_completo, data)
+            connection.commit()
+            cursor.close()
+            connection.close()
+            return 1
+        except: return 0
 
     @rpc(int, _returns=Iterable(Unicode))
     def getOneUser(self, id_user):
-        if c.verifyExists(id_user) == 0:return 0
+        if c.verifyExists(id_user) == 0: return tuple(map(str, ['Usuario nao existe']))
         conexao_getone = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
         cursor_getone = conexao_getone.cursor()
         sql = "SELECT * FROM usuario WHERE id=%s"
@@ -99,15 +109,17 @@ class Usuarios(ServiceBase):
         #usuário existe?
         if c.verifyExists(id_user) == 0:
             return 0
-        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
-        cursor = conn.cursor()
-        sql = "DELETE FROM usuario WHERE id = %s"
-        data = (id_user)
-        cursor.execute(sql, data)
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return 1
+        try:
+            conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+            cursor = conn.cursor()
+            sql = "DELETE FROM usuario WHERE id = %s"
+            data = (id_user)
+            cursor.execute(sql, data)
+            conn.commit()
+            cursor.close()
+            conn.close()
+            return 1
+        except: return 0
 
 
 application = Application([Usuarios], 'spyne.examples.hello.soap',
@@ -117,8 +129,11 @@ application = Application([Usuarios], 'spyne.examples.hello.soap',
 wsgi_application = WsgiApplication(application)
 
 if __name__ == '__main__':
+
     print ("listening to http://127.0.0.2:8000")
     print ("wsdl is at: http://localhost:8000/?wsdl")
+    logging.basicConfig(level=logging.DEBUG)
+    logging.getLogger('spyne.protocol.xml').setLevel(logging.DEBUG)
 
     server = make_server('127.0.0.2', 8000, wsgi_application)
     server.serve_forever()
