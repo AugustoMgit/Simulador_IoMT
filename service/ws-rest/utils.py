@@ -172,7 +172,31 @@ def verificarSituacoesEspecificas1(id_user):
     else:
         return 'Sua Temperatura Corporal está normal! Parabéns!'
 
+def verificarSituacoesEspecificas2(id_user):
+    # Verificar se existe alguma situação especifica
+    response = requests.get(URL_BASE + "/dadosSituacao2/" + str(id_user))
+    if (response.status_code != 200):
+        return 'Ocorreu um erro!'
+
+    situacoesEspecificas = json.loads(response.text)
+    dados = situacoesEspecificas['Data']
+    diastolica = []
+    sistolica = []
+
+    for d in dados:
+        diastolica.append(float(d['diastolica']))
+        sistolica.append(float(d['sistolica']))
+    
+    ### chamar end point para enviar email...
+    if (abs(diastolica[0] - diastolica[1]) > 10 and abs(diastolica[1] - diastolica[2]) > 10):
+        return 'Atenção!!! Sua pressão arterial diastolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+
+    if (abs(sistolica[0] - sistolica[1]) > 10 and abs(sistolica[1] - sistolica[2]) > 10):
+        return 'Atenção!!! Sua pressão arterial sistolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+
 
 def verificarSituacoesEspecificas(id_user):
     verificarSituacoesEspecificas1(id_user)
+    verificarSituacoesEspecificas2(id_user)
+
 

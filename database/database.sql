@@ -40,8 +40,10 @@ JOIN (
 WHERE dc.usuario = :id_user AND dc.tipo = 'TC' AND dc.valor1 NOT BETWEEN 35 AND 37.5
 HAVING ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) < 60;
 
--- SQL PARA DASHBOARD
-SELECT d.dataHora, d.valor1 AS sp02, d.valor2 AS frequnciaCardiaca
-FROM dadoscoletados d 
-WHERE tipo = 'SP02' AND usuario = :id_user
+-- Verifica Situação 2
+SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora
+FROM dadoscoletados d
+WHERE d.tipo = 'PA' AND d.usuario = :id_user AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp()
+ORDER BY dataHora DESC
+LIMIT 3
 

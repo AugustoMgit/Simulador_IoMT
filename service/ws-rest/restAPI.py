@@ -158,16 +158,22 @@ class BD(object):
         conn.close()
         return results_all
 
+
+    def getDadosSituacaoEspecifica2(self, id_user):
+        if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
+        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        cursor = conn.cursor()
+        sql = "SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora FROM dadoscoletados d WHERE d.tipo = 'PA' AND d.usuario = %s AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp() ORDER BY dataHora DESC LIMIT 3"
+        data = (id_user)
+        cursor.execute(sql, data)
+        results_all = cursor.fetchall()
+        cursor.close()
+        cursor.close()
+        conn.close()
+        return results_all
+
 c = BD()
 
-
-#@app.route('/api/get/users', methods=['GET'])
-#def getUsersAndDadosBD():
-#    tup = c.getUsersAndDados()
-#    list_json = []
-#    for t in tup:
-#        list_json.append({'id_user':t[0], 'name':t[1], 'born':t[2], 'sex':t[3]})
-#    return jsonify(list_json)
 
 @app.route('/api/add', methods=['PUT'])
 def insertDados():
@@ -304,6 +310,18 @@ def getDadosSituacao1(id_user):
         return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
 
     except: return {"ERROR":"problema de autenticacao"}
+
+@app.route("/api/dadosSituacao2/<id_user>", methods=["GET"])
+def getDadosSituacao2(id_user):
+    try:
+        tup = c.getDadosSituacaoEspecifica2(id_user)
+        list_json = []
+        for t in tup:
+            list_json.append({'sistolica': t[1], 'diastolica': t[2], 'data': t[3]})
+
+        return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
+    except: return {"ERROR":"problema de autenticacao"}
+
 
 @app.errorhandler(404)
 def page_not_found(e):
