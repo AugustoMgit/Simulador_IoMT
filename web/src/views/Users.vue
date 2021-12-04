@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-container>
-      <b-row>
+      <b-row class="mb-2">
         <b-col>
           <b-card title="Register new User">
             <b-form @submit="onSubmit" @reset="onReset">
@@ -47,8 +47,10 @@
 
               <b-form-row>
                 <b-col>
-                  <b-button type="submit" variant="primary" class="mr-2">Submit</b-button>
-                  <b-button type="reset"  variant="secondary">Reset</b-button>
+                  <div class="ml-auto">
+                    <b-button type="submit" variant="primary" class="mr-2">Submit</b-button>
+                    <b-button type="reset"  variant="secondary">Reset</b-button>
+                  </div>
                 </b-col>
               </b-form-row>
 
@@ -71,7 +73,7 @@
 </template>
 
 <script>
-import restApi from '@/services/restService'
+import soapApi from '@/services/soapService'
 
 export default {
   name: 'RegisterUser',
@@ -91,7 +93,7 @@ export default {
 
   methods: {
     onSubmit() {
-      restApi.users.registerNewUser(this.newUserForm);
+      soapApi.users.registerNewUser(this.newUserForm);
       this.getAllUsers();
     },
     onReset() {
@@ -99,7 +101,7 @@ export default {
     },
 
     getAllUsers() {
-      this.allUsers = restApi.users.getAllUsers();
+      this.allUsers = soapApi.users.getAllUsers();
     }
 
   },

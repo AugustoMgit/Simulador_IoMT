@@ -25,14 +25,7 @@ const users = [
 
 var api = {
 
-    users: {
-        getAllUsers() {
-            return users;
-        },
-        registerNewUser(newUser) {
-            return users.push(newUser);
-        }
-    }
+    
 
 }
 
