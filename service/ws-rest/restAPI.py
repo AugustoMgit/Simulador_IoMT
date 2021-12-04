@@ -14,7 +14,7 @@ app = flask.Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 app.config["DEBUG"] = True
-#app.config['CORS_HEADERS'] = 'Content-Type'
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 class BD(object):
     
@@ -161,57 +161,56 @@ class BD(object):
         conn.close()
         return {"ERROR":"", "Status":1}
 
+    def getDadosSituacaoEspecifica1(self, id_user):
+        if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
+        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        cursor = conn.cursor()
+        sql = "SELECT dc.usuario, dc.valor1 AS 'temperaturaCorporal', sub.valor1 AS 'SP02', sub.dataHora, dc.dataHora, ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) AS diffHoras\n"
+        sql += "FROM DadosColetados AS dc\n"
+        sql += " JOIN ( SELECT dc1.* FROM DadosColetados dc1 WHERE dc1.usuario = %s AND dc1.tipo = 'SP02' AND dc1.valor1 < 90 ) AS sub ON sub.usuario = dc.usuario\n"
+        sql += "WHERE dc.usuario = %s AND dc.tipo = 'TC' AND dc.valor1 NOT BETWEEN 35 AND 37.5 HAVING ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) < 60"
+        data = (id_user, id_user)
+        cursor.execute(sql, data)
+        results_all = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return results_all
+
+    def getDadosSituacaoEspecifica2(self, id_user):
+        if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
+        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        cursor = conn.cursor()
+        sql = "SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora FROM dadoscoletados d WHERE d.tipo = 'PA' AND d.usuario = %s AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp() ORDER BY dataHora DESC LIMIT 3"
+        data = (id_user)
+        cursor.execute(sql, data)
+        results_all = cursor.fetchall()
+        cursor.close()
+        cursor.close()
+        conn.close()
+        return results_all
 
 
 def sendEmailUserWarning(email_user, message):
-host = 'smtp.gmail.com'
-port = 587
-user = 'trabalhoSDupf2021@gmail.com'
-password = 'enviaremail'
+    host = 'smtp.gmail.com'
+    port = 587
+    user = 'trabalhoSDupf2021@gmail.com'
+    password = 'enviaremail'
 
-server = smtplib.SMTP(host, port)
-server.ehlo()
-server.starttls()
-server.login(user, password)
+    server = smtplib.SMTP(host, port)
+    server.ehlo()
+    server.starttls()
+    server.login(user, password)
 
-email_msg = MIMEMultipart()
-email_msg['From'] = 'IOMT'
-email_msg['To'] = email_user
-email_msg['Subject'] = 'Situacao especifica'
-email_msg.attach(MIMEText(message, 'plain'))
+    email_msg = MIMEMultipart()
+    email_msg['From'] = 'IOMT'
+    email_msg['To'] = email_user
+    email_msg['Subject'] = 'Situacao especifica'
+    email_msg.attach(MIMEText(message, 'plain'))
 
-server.sendmail(email_msg['From'], email_msg['To'], email_msg.as_string())
-server.quit()
+    server.sendmail(email_msg['From'], email_msg['To'], email_msg.as_string())
+    server.quit()
 
 c = BD()
-
-def getDadosSituacaoEspecifica1(self, id_user):
-    if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
-    conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
-    cursor = conn.cursor()
-    sql = "SELECT dc.usuario, dc.valor1 AS 'temperaturaCorporal', sub.valor1 AS 'SP02', sub.dataHora, dc.dataHora, ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) AS diffHoras\n"
-    sql += "FROM DadosColetados AS dc\n"
-    sql += " JOIN ( SELECT dc1.* FROM DadosColetados dc1 WHERE dc1.usuario = 4 AND dc1.tipo = 'SP02' AND dc1.valor1 < 90 ) AS sub ON sub.usuario = dc.usuario\n"
-    sql += "WHERE dc.usuario = %s AND dc.tipo = 'TC' AND dc.valor1 NOT BETWEEN 35 AND 37.5 HAVING ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) < 60"
-    data = (id_user)
-    cursor.execute(sql, data)
-    results_all = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return results_all
-
-def getDadosSituacaoEspecifica2(self, id_user):
-  if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
-  conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
-  cursor = conn.cursor()
-  sql = "SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora FROM dadoscoletados d WHERE d.tipo = 'PA' AND d.usuario = %s AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp() ORDER BY dataHora DESC LIMIT 3"
-  data = (id_user)
-  cursor.execute(sql, data)
-  results_all = cursor.fetchall()
-  cursor.close()
-  cursor.close()
-  conn.close()
-  return results_all
 
 c = BD()
 
@@ -219,6 +218,7 @@ c = BD()
 @app.route('/api/add', methods=['PUT'])
 def insertDados():
     user = request.form.get('id_user')
+    
     if user == None or user == '': return jsonify({"ERROR":"ID usuario invalido", "Status":0})
     valor1 = request.form.get('valor1')
     s_error = ''
@@ -234,11 +234,15 @@ def insertDados():
     if tipo == '' or tipo == None:
         s_error +='Insira o tipo.'
         #return jsonify({"ERROR":"Insira o tipo", "Status":0})
-    dataHora = request.form.get('dataHora')
+    dataHora = request.form.get('data')
     if dataHora == '' or dataHora == None:
         s_error +='Insira a Data e Hora.'
+    
+
     if len(s_error) > 1:return jsonify({"ERROR":s_error.strip(), "Status":0})
+
     r = c.addDados(user, valor1, valor2, tipo, dataHora)
+
     return jsonify(r)
 
 
@@ -307,13 +311,19 @@ def getDadosUniqueWithPOST():
 
 @app.route('/api/get/mydados', methods=['POST'])
 def getDados():
-    id_user_post = request.form.get('id_user')
-    if id_user_post == None: return jsonify({"ERROR": "ID usuario invalido"})
+    request_data = request.get_json()
+    id_user_post = request_data['id_user']
+
+    if id_user_post == None: 
+        return jsonify({"ERROR": "ID usuario invalido"})
+
     tup = c.getMyAllDados(id_user_post)
-    if tup == -1: return jsonify({"ERROR": "Usuario nao existe"})
+    if tup == -1: 
+        return jsonify({"ERROR": "Usuario nao existe"})
     list_json = []
     for t in tup:
         list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
+
     return jsonify({"ERROR":"", "len":len(list_json), "Data":list_json})
 
 @app.route('/api/situacoesEspecificas', methods=['POST'])
@@ -352,11 +362,24 @@ def deleteAll(id_user):
 
 @app.route('/api/generatedata', methods=['POST'])
 def generateData():
-    qnt_valores = request.form.get('qtValores')
-    min_minutos = request.form.get('minMinutos')
-    max_minutos = request.form.get('maxMinutos')
-    tipo = request.form.get('tipo')
-    return 'ARRUMAR'
+    request_data = request.get_json()
+
+    id_user = request_data['id_user']
+    qnt_valores = request_data["qtValores"]
+    min_minutos = request_data["minMinutos"]
+    max_minutos = request_data["maxMinutos"]
+    tipo = request_data["tipo"]
+
+    if (tipo == 'TC'):
+        utils.TemperaturaCorporal(id_user, qnt_valores, min_minutos, max_minutos)
+    elif (tipo == 'PA'):
+        utils.PA(id_user, qnt_valores, min_minutos, max_minutos)
+    elif (tipo == 'SP02'):
+        utils.SP02(id_user, qnt_valores, min_minutos, max_minutos)
+    else:
+        return jsonify({"ERROR":"Tipo deo Sensor é invalido! Permitidos [TC, PA, SP02]", "Status":0})
+
+    return jsonify({"ERROR":"", "Status":1})
 
 @app.route("/api/situacoesEspecifcas/<id_user>", methods=["GET"])
 def getSituacoesEspecifcas(id_user):
@@ -365,15 +388,22 @@ def getSituacoesEspecifcas(id_user):
 
 @app.route("/api/dadosSituacao1/<id_user>", methods=["GET"])
 def getDadosSituacao1(id_user):
-    try:
-        tup = c.getDadosSituacaoEspecifica1(id_user)
-        list_json = []
-        for t in tup:
-            list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
+    tup = c.getDadosSituacaoEspecifica1(id_user)
+    list_json = []
+    for t in tup:
+        print(t)
+        list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
+    return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
 
-        return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
+    # try:
+    #     tup = c.getDadosSituacaoEspecifica1(id_user)
+    #     list_json = []
+    #     for t in tup:
+    #         print(t)
+    #         list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
 
-    except: return {"ERROR":"problema de autenticacao"}
+    #     return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
+    # except: return {"ERROR":"problema de autenticacao"}
 
 @app.route("/api/dadosSituacao2/<id_user>", methods=["GET"])
 def getDadosSituacao2(id_user):

@@ -6,7 +6,7 @@ import json, requests
 
 URL_BASE = "http://localhost:5000/api"
 
-def PA(qtValores, minMinutos, MaxMinutos):
+def PA(id_user, qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -70,7 +70,7 @@ def FrequenciaCardiaca(qtValores):
     return(valoresNormais, valoresAnormais)
 
 
-def SP02(qtValores, minMinutos, MaxMinutos):
+def SP02(id_user, qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -117,7 +117,7 @@ def SP02(qtValores, minMinutos, MaxMinutos):
     return ('Dados inseridos com sucesso!')
 
 
-def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
+def TemperaturaCorporal(id_user, qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -142,11 +142,9 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
         delta = timedelta(minutes=minutes)
         dateTime = (date + delta)
 
-        dataPlot.append(tuple((dateTime, valores[i])))
-
         ### Chamar WS-Rest
         dados = {
-            "id_user": 1,
+            "id_user": id_user,
             "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
             "valor1": valores[i],
             "valor2": None,
@@ -166,6 +164,7 @@ def verificarSituacoesEspecificas1(id_user):
         return 'Ocorreu um erro!'
 
     situacoesEspecificas = json.loads(response.text)
+    print(situacoesEspecificas)
     ### chamar end point para enviar email...
     if (situacoesEspecificas['len'] > 0):
         return 'Atenção!!! Sua temperatura corporal mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
