@@ -3,6 +3,7 @@ import random
 from datetime import datetime, timedelta, time
 import pandas as pd
 import json, requests
+
 URL_BASE = "http://localhost:5000/api"
 
 def PA(qtValores, minMinutos, MaxMinutos):
@@ -158,4 +159,20 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
 
     return ('Dados inseridos com sucesso!')
 
-    
+def verificarSituacoesEspecificas1(id_user):
+    # Verificar se existe alguma situação especifica
+    response = requests.get(URL_BASE + "/dadosSituacao1/" + str(id_user))
+    if (response.status_code != 200):
+        return 'Ocorreu um erro!'
+
+    situacoesEspecificas = json.loads(response.text)
+    ### chamar end point para enviar email...
+    if (situacoesEspecificas['len'] > 0):
+        return 'Atenção!!! Sua temperatura corporal mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+    else:
+        return 'Sua Temperatura Corporal está normal! Parabéns!'
+
+
+def verificarSituacoesEspecificas(id_user):
+    verificarSituacoesEspecificas1(id_user)
+
