@@ -5,6 +5,7 @@ import flask
 import datetime
 from flask_cors import CORS
 import utils
+import datetime
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -75,11 +76,13 @@ class BD(object):
 
     def changeDados(self, id_user, id_dado, valor1='', valor2='', tipo=''):
         if self.verifyUserExists(id_user) == 0: return {"ERROR": 'Usuario nao cadastrado'}
-        if self.verifyDados(id_dado) == 0:return {"ERROR": 'Dado nao cadastrado'}
+        if self.verifyDados(id_dado) == 0: return {"ERROR": 'Dado nao cadastrado'}
+
         connection = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
         cursor = connection.cursor()
         data = ()
         sql_parcial = "UPDATE DadosColetados SET"
+
         if valor1 != '':
             sql_parcial +=  " valor1 = %s" 
             data = data + (valor1,)
@@ -92,11 +95,13 @@ class BD(object):
             sql_parcial += " tipo = %s"
             data = data + (tipo,)
         sql_completo = sql_parcial + ' WHERE id = %s'
+
         data = data + (str(id_dado),)
         cursor.execute(sql_completo, data)
         connection.commit()
         cursor.close()
         connection.close()
+
         return {"ERROR":"", "Status":1}
 
     def getAllDados(self):
@@ -212,115 +217,123 @@ def sendEmailUserWarning(email_user, message):
 
 c = BD()
 
-@app.route('/api/add', methods=['PUT'])
+@app.route('/api/add', methods=['PUT', 'POST'])
 def insertDados():
-    user = request.form.get('id_user')
+    request_data = request.get_json()
+    user = request_data['id_user']
     
     if user == None or user == '': return jsonify({"ERROR":"ID usuario invalido", "Status":0})
-    valor1 = request.form.get('valor1')
+    valor1 = request_data['valor1']
     s_error = ''
     if valor1 == '' or valor1 == None:
         s_error += 'Insira o valor 1. '
-        #return jsonify({"ERROR":"Insira o valor 1", "Status":0})
-    valor2 = request.form.get('valor2')
+
+    valor2 = request_data['valor2']
     if valor2 == '' or valor2 == None:
         valor2 = None
-        #s_error +='Insira o valor 2. '
-        #return jsonify({"ERROR":"Insira o valor 2", "Status":0})
-    tipo = request.form.get('tipo')
+
+    tipo = request_data['tipo']
     if tipo == '' or tipo == None:
         s_error +='Insira o tipo.'
-        #return jsonify({"ERROR":"Insira o tipo", "Status":0})
-    dataHora = request.form.get('data')
-    if dataHora == '' or dataHora == None:
-        s_error +='Insira a Data e Hora.'
-    
 
-    if len(s_error) > 1:return jsonify({"ERROR":s_error.strip(), "Status":0})
+    dataHora = datetime.datetime.now()
+    if 'dataHora' in request_data:
+        dataHora = request_data['data']
+
+    if len(s_error) > 1:
+        return jsonify({"ERROR":s_error.strip(), "Status":0})
 
     r = c.addDados(user, valor1, valor2, tipo, dataHora)
 
     return jsonify(r)
 
+@app.route('/api/addsimulador', methods=['PUT', 'POST'])
+def insertDadosSimualdor():
+    user = request.form.get('id_user')
+    
+    if user == None or user == '': return jsonify({"ERROR":"ID usuario invalido", "Status":0})
+    valor1 = request.form.get( 'valor1')
+    s_error = ''
+    if valor1 == '' or valor1 == None:
+        s_error += 'Insira o valor 1. '
+
+    valor2 = request.form.get( 'valor2')
+    if valor2 == '' or valor2 == None:
+        valor2 = None
+
+    tipo = request.form.get('tipo')
+    if tipo == '' or tipo == None:
+        s_error +='Insira o tipo.'
+    
+    dataHora =request.form.get('data')
+
+    if len(s_error) > 1:
+        return jsonify({"ERROR":s_error.strip(), "Status":0})
+
+    r = c.addDados(user, valor1, valor2, tipo, dataHora)
+
+    return jsonify(r)
 
 @app.route('/api/change/mydados', methods=['POST'])
 def changeMyDados():
-    id_dado = request.form.get('id_dado')
-    id_user = request.form.get('id_user')
-    valor1 = request.form.get('valor1')
-    valor2 = request.form.get('valor2')
-    tipo = request.form.get('tipo')
-    valor1 = valor1 if valor1!=None else ''
-    valor2 = valor2 if valor2!=None else ''
-    tipo = tipo if tipo!=None else ''
+    request_data = request.get_json()
+
+    id_dado = request_data['id_dado']
+    id_user = request_data['id_user']
+    valor1 = request_data['valor1']
+    valor2 = request_data['valor2']
+    tipo = request_data['tipo']
+    
+    valor1 = valor1 if valor1 != None else ''
+    valor2 = valor2 if valor2 != None else ''
+    tipo = tipo if tipo != None else ''
+
     if id_user == None: return jsonify({"ERROR":'ERROR ID USER'})
     if id_dado == None: return jsonify({"ERROR":'ERROR ID DADO'})
-    if valor1 == '' and valor2 == '' and tipo == '':
+
+    if valor1 == ''and valor2 == '' and tipo == '':
         return jsonify({"ERROR":'Nenhum dado a ser alterado', 'Status':0})
+
     r = c.changeDados(id_user, id_dado, valor1, valor2, tipo)
+
     return jsonify(r)
 
 
 #http://127.0.0.1:5000/api/get/mydado?iduser=1&iddado=2
-@app.route('/api/get/mydado', methods=['GET'])
-def getDadosUnique():
-    id_user_get = request.args.get('iduser', type=int)
-    id_dado_get = request.args.get('iddado', type=int)
-    if (id_user_get == '' or id_user_get == None) and (id_dado_get == '' or id_dado_get == None): return jsonify({"ERROR": "ID usuario e ID dado invalido"})
-    try:int(id_user_get)
-    except:return jsonify({"ERROR": "ID usuario invalido"})
-    try:int(id_dado_get)    
-    except:return jsonify({"ERROR": "ID dado invalido"})
-    if id_user_get == '': return jsonify({"ERROR": "ID usuario invalido"})
-    if id_dado_get == '': return jsonify({"ERROR": "ID dado invalido"})
-    tup = c.getMyDadoSpecify(id_user_get, id_dado_get)
+@app.route('/api/get/mydado/<id_user>/<id_dado>', methods=['GET'])
+def getDadosUnique(id_user, id_dado):
+    id_user_get = id_user
+    id_dado_get = id_dado
 
-    if tup ==  -1 or tup ==  -2:return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
-    list_json = []
-    for t in tup:
+    if (id_user_get == '' or id_user_get == None) and (id_dado_get == '' or id_dado_get == None): 
+        return jsonify({"ERROR": "ID usuario e ID dado invalido"})
 
-        list_json.append({'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
-    return jsonify({"ERROR":"", "Data":list_json})
-
-
-@app.route('/api/get/mydado', methods=['POST'])
-def getDadosUniqueWithPOST():
-    id_user_post = request.form.get('id_user')
-    id_dado_post = request.form.get('id_dado')
-    if id_user_post == None and id_dado_post == None: return jsonify({"ERROR": "ID usuario e ID dado invalido"})
-    if id_user_post == None: return jsonify({"ERROR": "ID usuario invalido"})
-    if id_dado_post == None: return jsonify({"ERROR": "ID dado invalido"})
-    tup = c.getMyDadoSpecify(id_user_post, id_dado_post)
-
-    #if tup ==  -1:
-        #return jsonify({"ERROR":"Usuario nao existe", "Status":0})
-    #if tup ==  -2:
-        #return jsonify({"ERROR":"Dado nao existe", "Status":0})
-    #if len(tup) == 0: return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
-
-    if tup ==  -1 or tup ==  -2:return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
-    list_json = []
-    for t in tup:
-        list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
-    return jsonify({"ERROR":"", "len":len(list_json), "Data":list_json})
-
-
-@app.route('/api/get/mydados', methods=['POST'])
-def getDados():
-    request_data = request.get_json()
-    id_user_post = request_data['id_user']
-
-    if id_user_post == None: 
+    try: 
+        int(id_user_get)
+    except:
         return jsonify({"ERROR": "ID usuario invalido"})
 
-    tup = c.getMyAllDados(id_user_post)
-    if tup == -1: 
-        return jsonify({"ERROR": "Usuario nao existe"})
+    try:
+        int(id_dado_get)    
+    except:
+        return jsonify({"ERROR": "ID dado invalido"})
+
+    if id_user_get == '': 
+        return jsonify({"ERROR": "ID usuario invalido"})
+    if id_dado_get == '': 
+        return jsonify({"ERROR": "ID dado invalido"})
+
+    tup = c.getMyDadoSpecify(id_user_get, id_dado_get)
+
+    if tup ==  -1 or tup ==  -2: 
+        return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
+
     list_json = []
     for t in tup:
-        list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
+        list_json.append({'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
 
-    return jsonify({"ERROR":"", "len":len(list_json), "Data":list_json})
+    return jsonify({"ERROR":"", "Data":list_json})
+
 
 @app.route('/api/emailsituacoesEspecificas', methods=['POST'])
 def mandaremailsituacoesEspecificas():
@@ -333,10 +346,10 @@ def mandaremailsituacoesEspecificas():
     if message_send_email == None: return {"ERROR": 'mensagem sem conteudo'}
     email_user = c.returnEmailUser(user)
     if email_user != None:
-        sendEmailUserWarning(email_user, message_send_email)
-        # try:
-        # except:
-        #     return {"ERROR":"Erro ao enviar o email"}
+        try:
+            sendEmailUserWarning(email_user, message_send_email)
+        except:
+            return {"ERROR":"Erro ao enviar o email"}
 
     return {"ERROR":"Nao tem email cadastrado"}
 
@@ -355,7 +368,7 @@ def getAll():
 def deleteDadoID(id_user, id_dado):
     return jsonify(c.deleteDado(id_user, id_dado))
 
-##excluir todos os dados do usuário
+#excluir todos os dados do usuário
 @app.route("/api/delete/alldados/<id_user>", methods=["DELETE"])
 def deleteAll(id_user):
     return jsonify(c.deleteAllMyDados(id_user))

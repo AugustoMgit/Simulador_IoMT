@@ -48,7 +48,7 @@ def PA(id_user, qtValores, minMinutos, MaxMinutos):
                   "tipo": "PA"
                 }
 
-        response = requests.put(URL_BASE + "/add", data=dados)
+        response = requests.put(URL_BASE + "/addsimulador", data=dados)
         if (response.status_code != 200):
             return 'Ocorreu um erro!'
 
@@ -110,7 +110,7 @@ def SP02(id_user, qtValores, minMinutos, MaxMinutos):
                   "tipo": "SP02"
                 }
 
-        response = requests.put(URL_BASE + "/add", data=dados)
+        response = requests.put(URL_BASE + "/addsimulador", data=dados)
         if (response.status_code != 200):
             return 'Ocorreu um erro!'
 
