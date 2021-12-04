@@ -228,15 +228,11 @@ def getDadosUnique():
     if id_user_get == '': return jsonify({"ERROR": "ID usuario invalido"})
     if id_dado_get == '': return jsonify({"ERROR": "ID dado invalido"})
     tup = c.getMyDadoSpecify(id_user_get, id_dado_get)
-    #if tup ==  -1:
-        #return jsonify({"ERROR":"Usuario nao existe", "Status":0})
-    #if tup ==  -2:
-        #return jsonify({"ERROR":"Dado nao existe", "Status":0})
-    #if len(tup) == 0: return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
+
     if tup ==  -1 or tup ==  -2:return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
     list_json = []
     for t in tup:
-        #list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
+
         list_json.append({'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
     return jsonify({"ERROR":"", "Data":list_json})
 
@@ -251,11 +247,7 @@ def getDadosUniqueWithPOST():
     print("TIP")
     tup = c.getMyDadoSpecify(id_user_post, id_dado_post)
     print("TIP", tup)
-    #if tup ==  -1:
-        #return jsonify({"ERROR":"Usuario nao existe", "Status":0})
-    #if tup ==  -2:
-        #return jsonify({"ERROR":"Dado nao existe", "Status":0})
-    #if len(tup) == 0: return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
+
     if tup ==  -1 or tup ==  -2:return jsonify({"ERROR": 'Nenhum dado encontrado', 'Status':0})
     list_json = []
     for t in tup:
