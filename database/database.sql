@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS DadosColetados (
 	FOREIGN KEY (usuario) REFERENCES usuario(id) ON UPDATE CASCADE
 );
 
+ALTER TABLE usuario
+	ADD COLUMN email VARCHAR(100) NULL DEFAULT NULL;
 
 INSERT INTO usuario (nome, nascimento, sexo) VALUES ('João', '2000-02-01', 'M');
 INSERT INTO usuario (nome, nascimento, sexo) VALUES ('Augusto', '2000-02-01', 'M');
@@ -40,8 +42,10 @@ JOIN (
 WHERE dc.usuario = :id_user AND dc.tipo = 'TC' AND dc.valor1 NOT BETWEEN 35 AND 37.5
 HAVING ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) < 60;
 
--- SQL PARA DASHBOARD
-SELECT d.dataHora, d.valor1 AS sp02, d.valor2 AS frequnciaCardiaca
-FROM dadoscoletados d 
-WHERE tipo = 'SP02' AND usuario = :id_user
+-- Verifica Situação 2
+SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora
+FROM dadoscoletados d
+WHERE d.tipo = 'PA' AND d.usuario = :id_user AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp()
+ORDER BY dataHora DESC
+LIMIT 3
 
