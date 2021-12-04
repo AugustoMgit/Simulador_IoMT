@@ -22,6 +22,12 @@ CREATE TABLE IF NOT EXISTS DadosColetados (
 	FOREIGN KEY (usuario) REFERENCES usuario(id) ON UPDATE CASCADE
 );
 
+
+INSERT INTO usuario (nome, nascimento, sexo) VALUES ('João', '2000-02-01', 'M');
+INSERT INTO usuario (nome, nascimento, sexo) VALUES ('Augusto', '2000-02-01', 'M');
+INSERT INTO usuario (nome, nascimento, sexo) VALUES ('Vitor', '2000-02-01', 'M');
+INSERT INTO usuario (nome, nascimento, sexo) VALUES ('William', '2000-02-01', 'M');
+
 -- Verifica Situação 1
 SELECT dc.usuario, dc.valor1 AS 'temperaturaCorporal', sub.valor1 AS 'SP02', sub.dataHora, dc.dataHora,
 		ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) AS diffHoras
@@ -38,3 +44,4 @@ HAVING ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) < 60;
 SELECT d.dataHora, d.valor1 AS sp02, d.valor2 AS frequnciaCardiaca
 FROM dadoscoletados d 
 WHERE tipo = 'SP02' AND usuario = :id_user
+
