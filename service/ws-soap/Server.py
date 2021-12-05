@@ -31,6 +31,9 @@ class BD(object):
 c = BD()
 
 
+
+
+
 class Usuarios(ServiceBase):
 
     @rpc(Unicode, Unicode, Unicode, Unicode, _returns=int)
