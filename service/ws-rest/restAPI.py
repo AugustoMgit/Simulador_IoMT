@@ -297,15 +297,15 @@ def getDados():
 def situacoesEspecificas():
     id_user = request.form.get('id_user')
     message_send_email = request.form.get('msg')
-    if message_send_email == None: return {"ERROR": 'mensagem sem conteudo'}
+    if message_send_email == None: return jsonify({"ERROR": 'mensagem sem conteudo'})
     email_user = c.returnEmailUser(id_user)
     if email_user != None:
         try:
             sendEmailUserWarning(email_user, message_send_email)
         except:
-            return {"ERROR":"Erro ao enviar o email"}
-        return {"ERROR":""}
-    return {"ERROR":"Nao tem email cadastrado"}
+            return jsonify({"ERROR":"Erro ao enviar o email"})
+        return jsonify({"ERROR":""})
+    return jsonify({"ERROR":"Nao tem email cadastrado"})
 
 @app.route('/api/get/alldados', methods=['GET'])
 def getAll():
@@ -315,7 +315,7 @@ def getAll():
         for t in tup:
             list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
         return jsonify({"ERROR":"", "len":len(list_json), "Data":list_json})
-    except: return {"ERROR":"problema de autenticacao"}
+    except: return jsonify({"ERROR":"problema de autenticacao"})
 
 #excluir dado específico do usuário
 @app.route("/api/delete/dado/<id_user>/<id_dado>", methods=["DELETE"])
