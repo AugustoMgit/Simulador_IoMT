@@ -2,7 +2,7 @@
     <div>
         <b-row class="mb-2">
         <b-col>
-            <b-card title="Dados coletados">
+            <b-card title="Dados simulados">
                 <b-form @submit="onSubmit" @reset="onReset">
                     <b-form-row>
                         <b-form-group>

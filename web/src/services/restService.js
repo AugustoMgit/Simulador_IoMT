@@ -12,7 +12,7 @@ const users = [
         birthday: '2007-11-09',
         gender: 'M'
     },
-    {
+    { 
         name: 'maria',
         birthday: '2002-11-09',
         gender: 'F'
@@ -29,8 +29,12 @@ var restService = {
 
     restApi: {
 
-        dados() {
-            return axios.get('/endpoint/');
+        dados(dadosColetados) {
+            return axios.post('/api/change/mydado/' + dadosColetados);
+        },
+
+        simulador(dadosSimulados) {
+            return axios.post('/endpoint' + dadosSimulados)
         }
     }
 
