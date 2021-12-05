@@ -9,7 +9,6 @@ app = flask.Flask(__name__)
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 app.config["DEBUG"] = True
-
 class BD(object):
     
     def verifyUserExists(self, id_user):

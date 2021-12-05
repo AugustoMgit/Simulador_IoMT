@@ -18,6 +18,16 @@ const routes = [
         path: '/users',
         name: 'users',
         component: () => import('@/views/Users.vue')
+      },
+      {
+        path: '/simulador',
+        name: 'simulador',
+        component: () => import('@/views/Simulador.vue')
+      },
+      {
+        path: '/dados-coletados',
+        name: 'dados-coletados',
+        component: () => import('@/views/DadosColetados.vue')
       }
     ]
   }

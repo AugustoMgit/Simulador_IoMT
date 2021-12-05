@@ -1,10 +1,11 @@
-// import axios from 'axios';
+import axios from '@/plugins/axios';
 
 // const restApi = axios.create({
 //     baseUrl: "http://"
 // });
 
 
+/*
 const users = [
     {
         name: 'joao',
@@ -22,11 +23,17 @@ const users = [
         gender: 'M'
     }
 ]
+*/
 
-var api = {
+var restService = {
 
-    
+    restApi: {
+
+        dados() {
+            return axios.get('/endpoint/');
+        }
+    }
 
 }
 
-export default api;
+export default restService;
