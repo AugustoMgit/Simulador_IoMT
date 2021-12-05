@@ -79,7 +79,11 @@
               <b-list-group-item v-for="user in allUsers" :key="user._text">{{ user._text }}</b-list-group-item>
             </b-list-group> -->
             <b-table striped bordered
-              :items="allUsers">
+              :items="allUsers" :fields="tableFields">
+              
+              <template #cell(actions)="row">
+                <b-button-close @click="deleteUser(row.item.id)"></b-button-close>
+              </template>
 
             </b-table>
           </b-card>
@@ -105,18 +109,25 @@ export default {
         email: '',
       },
 
-      allUsers: []
+      allUsers: [],
+
+      tableFields: [
+        'name', 'birthday', 'gender', 'email',
+        { key: 'actions', label: 'Actions' }
+      ]
+
     }
   },
 
   methods: {
     onSubmit() {
       soapApi.users.registerNewUser(this.newUserForm)
-      .then(response => {
-        console.log(response);
+      .then(() => {
+        this.$bvModal.msgBoxOk('User registered successfully.')
       })
       .catch(error => {
         console.log(error);
+        this.$bvModal.msgBoxOk('An unexpected error occurred!')
       })
       this.getAllUsers();
     },
@@ -129,7 +140,29 @@ export default {
       .then(users => {
         this.allUsers = users;
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error)
+        this.$bvModal.msgBoxOk('An unexpected error occurred!')
+      });
+    },
+
+    deleteUser(id) {
+      this.$bvModal.msgBoxConfirm('Are you sure?')
+      .then(isConfirmed => {
+        if(isConfirmed) this.confirmDeleteUser(id);
+      })
+    },
+
+    confirmDeleteUser(id) {
+      soapApi.users.deleteUser(id)
+      .then(() => {
+        this.$bvModal.msgBoxOk('User deleted successfully')
+      })
+      .catch(error => {
+        console.log(error);
+        this.$bvModal.msgBoxOk('An unexpected error occurred!')
+      });
+      this.getAllUsers();
     }
 
   },
