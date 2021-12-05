@@ -9,9 +9,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" > Usuarios</b-input-group-text>
+                                        <b-input-group-text label="Usuarios:" label-for="input-user-name" > Usuarios</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+                                    <b-form-input id="input-user-usuarios" v-model="newUserForm.usuarios" type="text" placeholder="Enter usuarios" required ></b-form-input>
 
                                     <template #append>
                                     <b-dropdown text="Dropdown" variant="success">
@@ -27,9 +27,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Tipos</b-input-group-text>
+                                        <b-input-group-text label="Tipos:" label-for="input-user-tipos" >Tipos</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+                                    <b-form-input id="input-user-tipos" v-model="newUserForm.tipos" type="text" placeholder="Enter tipos" required ></b-form-input>
 
                                     <template #append>
                                     <b-dropdown text="Dropdown" variant="success">
@@ -45,9 +45,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Quantidade</b-input-group-text>
+                                        <b-input-group-text label="Quantidade:" label-for="input-user-quantidade" >Quantidade</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+                                    <b-form-input id="input-user-quantidade" v-model="newUserForm.quantidade" type="text" placeholder="Enter quantidade" required ></b-form-input>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -60,9 +60,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Min. Minutos</b-input-group-text>
+                                        <b-input-group-text label="MinMinuto:" label-for="input-user-minminuto" >Min. Minutos</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+                                    <b-form-input id="input-user-minminuto" v-model="newUserForm.minminuto" type="text" placeholder="Enter min minuto" required ></b-form-input>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -71,9 +71,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Max. Minutos</b-input-group-text>
+                                        <b-input-group-text label="MaxMinuto:" label-for="input-user-maxminuto" >Max. Minutos</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+                                    <b-form-input id="input-user-maxminuto" v-model="newUserForm.maxminuto" type="text" placeholder="Enter max minuto" required ></b-form-input>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -94,6 +94,7 @@
     </div>    
 </template>
 <script>
+import restService from '@/services/restService'
 
 export default {
   name: 'Simulador',
@@ -102,9 +103,11 @@ export default {
     return {
 
         newUserForm: {
-        name: '',
-        birthday: '',
-        gender: '',
+        usuarios: '',
+        tipos: '',
+        quantidade: '',
+        minminuto: '',
+        maxminuto: '',
       },
 
       allUsers: []
@@ -113,7 +116,7 @@ export default {
 
     methods: {
         onSubmit() {
-        //restApi.users.registerNewUser(this.newUserForm);
+        restService.restApi.simulador(this.newUserForm);
         this.getAllUsers();
         },
         onReset() {

@@ -9,9 +9,27 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" > Username</b-input-group-text>
+                                        <b-input-group-text label="Name:" label-for="input-user-name" >Username</b-input-group-text>
                                     </template>
                                     <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+
+                                    <template #append>
+                                    <b-dropdown text="Dropdown" variant="success">
+                                        <b-dropdown-item>Action A</b-dropdown-item>
+                                        <b-dropdown-item>Action B</b-dropdown-item>
+                                    </b-dropdown>
+                                    </template> 
+                                </b-input-group>
+                            </b-col>
+                        </b-form-group>
+
+                        <b-form-group>
+                            <b-col>
+                                <b-input-group>
+                                    <template #prepend>
+                                        <b-input-group-text label="Tipo:" label-for="input-user-tipo" >Tipo</b-input-group-text>
+                                    </template>
+                                    <b-form-input id="input-user-tipo" v-model="newUserForm.tipo" type="text" placeholder="Enter type" required ></b-form-input>
 
                                     <template #append>
                                     <b-dropdown text="Dropdown" variant="success">
@@ -27,16 +45,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Tipo</b-input-group-text>
+                                        <b-input-group-text label="Valor 1:" label-for="input-user-valor1" >Valor 1</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
-
-                                    <template #append>
-                                    <b-dropdown text="Dropdown" variant="success">
-                                        <b-dropdown-item>Action A</b-dropdown-item>
-                                        <b-dropdown-item>Action B</b-dropdown-item>
-                                    </b-dropdown>
-                                    </template>
+                                    <b-form-input id="input-user-name" v-model="newUserForm.valor1" type="text" placeholder="Enter valor 1" required ></b-form-input>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -45,20 +56,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Valor 1</b-input-group-text>
+                                        <b-input-group-text label="Valor 2:" label-for="input-user-valor2" >Valor 2</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
-                                </b-input-group>
-                            </b-col>
-                        </b-form-group>
-
-                        <b-form-group>
-                            <b-col>
-                                <b-input-group>
-                                    <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Valor 2</b-input-group-text>
-                                    </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+                                    <b-form-input id="input-user-valor2" v-model="newUserForm.valor2" type="text" placeholder="Enter valor 2" required ></b-form-input>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -79,6 +79,7 @@
     </div>    
 </template>
 <script>
+import restService from '@/services/restService'
 
 export default {
   name: 'DadosColetados',
@@ -88,8 +89,9 @@ export default {
 
         newUserForm: {
         name: '',
-        birthday: '',
-        gender: '',
+        tipo: '',
+        valor1: '',
+        valor2: '',
       },
 
       allUsers: []
@@ -98,7 +100,7 @@ export default {
 
     methods: {
         onSubmit() {
-        //restApi.users.registerNewUser(this.newUserForm);
+        restService.restApi.dados(this.newUserForm);
         this.getAllUsers();
         },
         onReset() {
