@@ -7,6 +7,9 @@ from flask_cors import CORS
 import utils
 import datetime
 
+import sys
+import os
+
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -17,10 +20,19 @@ cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 app.config["DEBUG"] = True
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
+ENDPOINT="aws-db.cu6xdlhm2sr3.us-east-2.rds.amazonaws.com"
+PORT=3306
+USR="admin"
+REGION="us-east-2b"
+DBNAME="iomt"
+
+
 class BD(object):
     
     def verifyUserExists(self, id_user):
-        conn_ver = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        #conn =  mysql.connector.connect(host=ENDPOINT, user=USR, passwd=token, port=PORT, database=DBNAME, ssl_ca='[full path]rds-combined-ca-bundle.pem'
+        conn_ver = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_ver = conn_ver.cursor()
         sql = "select id FROM usuario WHERE id = %s"
         data = (id_user)
@@ -35,7 +47,8 @@ class BD(object):
             return 1
         
     def verifyDados(self, id_dado):
-        conn_ver = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        #conn_ver = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="root1234",database="iomt",autocommit=True)
+        conn_ver = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_ver = conn_ver.cursor()
         sql = "select id FROM DadosColetados WHERE id = %s"
         data = (id_dado)
@@ -50,7 +63,7 @@ class BD(object):
             return 1
 
     def returnEmailUser(self, id_user):
-        conn_ver = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conn_ver = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_ver = conn_ver.cursor()
         sql = "select email FROM usuario WHERE id = %s"
         data = (id_user)
@@ -63,7 +76,8 @@ class BD(object):
 
     def addDados(self, id_user, value1, value2, type_, dataHora):
         if self.verifyUserExists(id_user) == 0: return {"ERROR": 'Usuario nao cadastrado'}
-        conexao = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        #conexao = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="root1234",database="iomt",autocommit=True)
+        conexao = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_add = conexao.cursor()
         sql = "INSERT INTO DadosColetados (usuario, valor1, valor2, dataHora, tipo) VALUES (%s,%s,%s,%s,%s)"
         data = (id_user, value1, value2, dataHora, type_)
@@ -77,7 +91,7 @@ class BD(object):
         if self.verifyUserExists(id_user) == 0: return {"ERROR": 'Usuario nao cadastrado'}
         if self.verifyDados(id_dado) == 0: return {"ERROR": 'Dado nao cadastrado'}
 
-        connection = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        connection = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor = connection.cursor()
         data = ()
         sql_parcial = "UPDATE DadosColetados SET"
@@ -104,7 +118,7 @@ class BD(object):
         return {"ERROR":"", "Status":1}
 
     def getAllDados(self):
-        conexao_getall = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conexao_getall =  pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_getall = conexao_getall.cursor()
         sql = "SELECT * FROM DadosColetados"
         cursor_getall.execute(sql)
@@ -115,7 +129,7 @@ class BD(object):
 
     def getMyAllDados(self, id_user):
         if self.verifyUserExists(id_user) == 0: return -1
-        conexao_getall = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conexao_getall = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_getall = conexao_getall.cursor()
         sql = "SELECT * FROM DadosColetados WHERE usuario = %s"
         cursor_getall.execute(sql, (id_user))
@@ -127,7 +141,7 @@ class BD(object):
     def getMyDadoSpecify(self, id_user, id_dado):
         if self.verifyUserExists(id_user) == 0:return -1
         if self.verifyDados(id_dado) == 0:return -2
-        conexao_getall = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conexao_getall = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_getall = conexao_getall.cursor()
         sql = "SELECT * FROM DadosColetados WHERE usuario = %s and id = %s"
         cursor_getall.execute(sql, (id_user,id_dado))
@@ -139,7 +153,7 @@ class BD(object):
     def deleteDado(self, id_user, id_dado):
         if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
         #if self.verifyDados(id_dado) == 0:return {"ERROR":"Dado nao existe", "Status":0}
-        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conn = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor = conn.cursor()
         sql = "DELETE FROM DadosColetados WHERE id = %s AND usuario = %s"
         sql_ver = "SELECT * FROM DadosColetados WHERE id = %s AND usuario = %s"
@@ -155,7 +169,7 @@ class BD(object):
     
     def deleteAllMyDados(self, id_user):
         if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
-        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conn = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor = conn.cursor()
         sql = "DELETE FROM DadosColetados WHERE usuario = %s"
         data = (id_user)
@@ -167,7 +181,7 @@ class BD(object):
 
     def getDadosSituacaoEspecifica1(self, id_user):
         if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
-        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conn = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor = conn.cursor()
         sql = "SELECT dc.usuario, dc.valor1 AS 'temperaturaCorporal', sub.valor1 AS 'SP02', sub.dataHora, dc.dataHora, ABS(TIMESTAMPDIFF(MINUTE , dc.dataHora , sub.dataHora)) AS diffHoras\n"
         sql += "FROM DadosColetados AS dc\n"
@@ -182,7 +196,7 @@ class BD(object):
 
     def getDadosSituacaoEspecifica2(self, id_user):
         if self.verifyUserExists(id_user) == 0:return {"ERROR":"Usuario nao existe", "Status":0}
-        conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conn = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor = conn.cursor()
         sql = "SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora FROM dadoscoletados d WHERE d.tipo = 'PA' AND d.usuario = %s AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp() ORDER BY dataHora DESC LIMIT 3"
         data = (id_user)
@@ -216,7 +230,7 @@ def sendEmailUserWarning(email_user, message):
 
 c = BD()
 
-@app.route('/api/add', methods=['PUT', 'POST'])
+@app.route('/api/add', methods=['POST'])
 def insertDados():
     request_data = request.get_json()
     user = request_data['id_user']
@@ -273,7 +287,7 @@ def insertDadosSimualdor():
 
     return jsonify(r)
 
-@app.route('/api/change/mydados', methods=['POST'])
+@app.route('/api/change/mydados', methods=['PUT'])
 def changeMyDados():
     request_data = request.get_json()
 
@@ -336,7 +350,7 @@ def getDadosUnique(id_user, id_dado):
 
 @app.route('/api/emailsituacoesEspecificas', methods=['POST'])
 def mandaremailsituacoesEspecificas():
-    user = request.form.get('id_user')
+    id_user = request.form.get('id_user')
     message_send_email = request.form.get('msg')
     if message_send_email == None: return jsonify({"ERROR": 'mensagem sem conteudo'})
  
@@ -361,12 +375,12 @@ def getAll():
         return jsonify({"ERROR":"", "len":len(list_json), "Data":list_json})
     except: return jsonify({"ERROR":"problema de autenticacao"})
 
-#excluir dado específico do usuário
+#excluir dado espec�fico do usu�rio
 @app.route("/api/delete/dado/<id_user>/<id_dado>", methods=["DELETE"])
 def deleteDadoID(id_user, id_dado):
     return jsonify(c.deleteDado(id_user, id_dado))
 
-#excluir todos os dados do usuário
+#excluir todos os dados do usu�rio
 @app.route("/api/delete/alldados/<id_user>", methods=["DELETE"])
 def deleteAll(id_user):
     return jsonify(c.deleteAllMyDados(id_user))
@@ -388,7 +402,7 @@ def generateData():
     elif (tipo == 'SP02'):
         utils.SP02(id_user, qnt_valores, min_minutos, max_minutos)
     else:
-        return jsonify({"ERROR":"Tipo deo Sensor é invalido! Permitidos [TC, PA, SP02]", "Status":0})
+        return jsonify({"ERROR":"Tipo deo Sensor � invalido! Permitidos [TC, PA, SP02]", "Status":0})
 
     return jsonify({"ERROR":"", "Status":1})
 
