@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS DadosColetados (
 	FOREIGN KEY (usuario) REFERENCES usuario(id) ON UPDATE CASCADE
 );
 
+ALTER TABLE usuario
+	ADD COLUMN email VARCHAR(100) NULL DEFAULT NULL;
 
 INSERT INTO usuario (nome, nascimento, sexo) VALUES ('João', '2000-02-01', 'M');
 INSERT INTO usuario (nome, nascimento, sexo) VALUES ('Augusto', '2000-02-01', 'M');

@@ -7,11 +7,8 @@ from flask_cors import CORS
 import utils
 import datetime
 
-
 import sys
-import boto3
 import os
-
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -29,7 +26,6 @@ PORT=3306
 USR="admin"
 REGION="us-east-2b"
 DBNAME="iomt"
-
 
 
 class BD(object):
@@ -122,8 +118,6 @@ class BD(object):
         return {"ERROR":"", "Status":1}
 
     def getAllDados(self):
-        #conexao_getall = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="root1234",database="iomt",autocommit=True)
-        #conexao_getall = pymysql.connect(host=ENDPOINT,port=3306,user="root",password="root1234",database="iomt",autocommit=True)
         conexao_getall =  pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_getall = conexao_getall.cursor()
         sql = "SELECT * FROM DadosColetados"

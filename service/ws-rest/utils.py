@@ -6,7 +6,7 @@ import json, requests
 
 URL_BASE = "http://localhost:5000/api"
 
-def PA(qtValores, minMinutos, MaxMinutos):
+def PA(id_user, qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -48,7 +48,7 @@ def PA(qtValores, minMinutos, MaxMinutos):
                   "tipo": "PA"
                 }
 
-        response = requests.put(URL_BASE + "/add", data=dados)
+        response = requests.put(URL_BASE + "/addsimulador", data=dados)
         if (response.status_code != 200):
             return 'Ocorreu um erro!'
 
@@ -70,7 +70,7 @@ def FrequenciaCardiaca(qtValores):
     return(valoresNormais, valoresAnormais)
 
 
-def SP02(qtValores, minMinutos, MaxMinutos):
+def SP02(id_user, qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -110,14 +110,14 @@ def SP02(qtValores, minMinutos, MaxMinutos):
                   "tipo": "SP02"
                 }
 
-        response = requests.put(URL_BASE + "/add", data=dados)
+        response = requests.put(URL_BASE + "/addsimulador", data=dados)
         if (response.status_code != 200):
             return 'Ocorreu um erro!'
 
     return ('Dados inseridos com sucesso!')
 
 
-def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
+def TemperaturaCorporal(id_user, qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
 
@@ -142,18 +142,16 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
         delta = timedelta(minutes=minutes)
         dateTime = (date + delta)
 
-        dataPlot.append(tuple((dateTime, valores[i])))
-
         ### Chamar WS-Rest
         dados = {
-            "id_user": 1,
+            "id_user": id_user,
             "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
             "valor1": valores[i],
             "valor2": None,
             "tipo": "TC"
         }
 
-        response = requests.put(URL_BASE + "/add", data=dados)
+        response = requests.put(URL_BASE + "/addsimulador", data=dados)
         if (response.status_code != 200):
             return 'Ocorreu um erro!'
 
@@ -161,19 +159,32 @@ def TemperaturaCorporal(qtValores, minMinutos, MaxMinutos):
 
 def verificarSituacoesEspecificas1(id_user):
     # Verificar se existe alguma situação especifica
+    msg = ""
     response = requests.get(URL_BASE + "/dadosSituacao1/" + str(id_user))
     if (response.status_code != 200):
         return 'Ocorreu um erro!'
 
     situacoesEspecificas = json.loads(response.text)
+
     ### chamar end point para enviar email...
     if (situacoesEspecificas['len'] > 0):
-        return 'Atenção!!! Sua temperatura corporal mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+        msg = 'Atenção!!! Sua temperatura corporal mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
     else:
-        return 'Sua Temperatura Corporal está normal! Parabéns!'
+        msg = 'Sua Temperatura Corporal está normal! Parabéns!'
+
+    dados = {
+        'id_user': id_user,
+        'msg': msg
+    }
+
+    response = requests.post(URL_BASE + "/emailsituacoesEspecificas", data=dados)
+    if (response.status_code != 200):
+        print (response.text)
+
 
 def verificarSituacoesEspecificas2(id_user):
     # Verificar se existe alguma situação especifica
+    msg = ""
     response = requests.get(URL_BASE + "/dadosSituacao2/" + str(id_user))
     if (response.status_code != 200):
         return 'Ocorreu um erro!'
@@ -189,10 +200,20 @@ def verificarSituacoesEspecificas2(id_user):
     
     ### chamar end point para enviar email...
     if (abs(diastolica[0] - diastolica[1]) > 10 and abs(diastolica[1] - diastolica[2]) > 10):
-        return 'Atenção!!! Sua pressão arterial diastolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+        msg = 'Atenção!!! Sua pressão arterial diastolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!\n'
 
     if (abs(sistolica[0] - sistolica[1]) > 10 and abs(sistolica[1] - sistolica[2]) > 10):
-        return 'Atenção!!! Sua pressão arterial sistolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+        msg += 'Atenção!!! Sua pressão arterial sistolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!'
+
+    if (msg != ""):
+        dados = {
+            "id_user": id_user,
+            "msg": msg
+        }
+
+        response = requests.post(URL_BASE + "/emailsituacoesEspecificas", data=dados)
+        if (response.status_code != 200):
+            return 'Ocorreu um erro!'
 
 
 def verificarSituacoesEspecificas(id_user):
