@@ -10,10 +10,17 @@ from wsgiref.simple_server import make_server
 import json
 import pymysql
 
+
+ENDPOINT="aws-db.cu6xdlhm2sr3.us-east-2.rds.amazonaws.com"
+PORT=3306
+USR="admin"
+REGION="us-east-2b"
+DBNAME="iomt"
+
 class BD(object):
 
     def verifyExists(self, id_user):
-        conn_ver = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conn_ver = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_ver = conn_ver.cursor()
         sql = "select id FROM usuario WHERE id = %s"
         data = (id_user)
@@ -36,7 +43,7 @@ class Usuarios(ServiceBase):
     @rpc(Unicode, Unicode, Unicode, Unicode, _returns=int)
     def addUser(self, nome, nascimento, sexo, email):
         try:
-            conexao = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+            conexao = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
             cursor_add = conexao.cursor()
             sql = "INSERT INTO usuario (nome, nascimento, sexo, email) VALUES (%s, %s, %s, %s)"
             data = (nome,nascimento,sexo, email)
@@ -52,7 +59,7 @@ class Usuarios(ServiceBase):
         #usuário não existe? se não, retorna 0. Caso contrário, retorna 1 (deu certo)
         if c.verifyExists(id_user) == 0: return 0
         try:
-            connection = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+            connection = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
             cursor = connection.cursor()
             data = ()
             sql_parcial = "UPDATE usuario SET"
@@ -79,7 +86,7 @@ class Usuarios(ServiceBase):
     @rpc(int, _returns=Iterable(Unicode))
     def getOneUser(self, id_user):
         if c.verifyExists(id_user) == 0: return tuple(map(str, ['Usuario nao existe']))
-        conexao_getone = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conexao_getone = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_getone = conexao_getone.cursor()
         sql = "SELECT * FROM usuario WHERE id=%s"
         cursor_getone.execute(sql, (id_user))
@@ -93,7 +100,7 @@ class Usuarios(ServiceBase):
 
     @rpc(_returns=Iterable(Unicode))
     def getAllUsers(self):
-        conexao_getall = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+        conexao_getall = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor_getall = conexao_getall.cursor()
         sql = "SELECT * FROM usuario"
         cursor_getall.execute(sql)
@@ -112,7 +119,7 @@ class Usuarios(ServiceBase):
         if c.verifyExists(id_user) == 0:
             return 0
         try:
-            conn = pymysql.connect(host="127.0.0.1",port=3306,user="root",password="",database="iomt",autocommit=True)
+            conn = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
             cursor = conn.cursor()
             sql = "DELETE FROM usuario WHERE id = %s"
             data = (id_user)
