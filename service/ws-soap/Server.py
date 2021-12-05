@@ -1,11 +1,11 @@
 from typing import Tuple
 import logging
+import datetime
 from spyne import Application, rpc, ServiceBase, Unicode, Iterable
-from spyne.model.complex import Array, ComplexModel, ComplexModelBase
+from spyne.model.complex import Array
+from spyne.protocol.xml import XmlDocument
 from spyne.protocol.soap import Soap12
 from spyne.server.wsgi import WsgiApplication
-from spyne.protocol.xml import XmlDocument
-from spyne.protocol.http import HttpRpc
 from wsgiref.simple_server import make_server
 import json
 import pymysql
@@ -67,10 +67,6 @@ class Usuarios(ServiceBase):
                 if 'nome' in sql_parcial or 'nascimento' in sql_parcial:sql_parcial +=','
                 sql_parcial += " sexo = %s"
                 data = data + (sexo,)
-            #if dataHora != '':
-            #    if 'nome' in sql_parcial or 'nascimento' in sql_parcial or 'sexo' in sql_parcial:sql_parcial +=','
-            #    sql_parcial += " dataHora = %s"
-            #    data = data + (dataHora,)
             sql_completo = sql_parcial + ' WHERE id = %s'
             data = data + (str(id_user),)
             cursor.execute(sql_completo, data)
@@ -90,7 +86,10 @@ class Usuarios(ServiceBase):
         results_one = cursor_getone.fetchall()
         cursor_getone.close()
         conexao_getone.close()
-        return tuple(map(str, results_one))
+        resultado_final = []
+        for j in range(len(results_one)):
+            resultado_final.append((results_one[j][0], results_one[j][1], results_one[j][2].strftime('%d-%m-%Y'), results_one[j][3], results_one[j][4]))
+        return tuple(map(str, resultado_final))
 
     @rpc(_returns=Iterable(Unicode))
     def getAllUsers(self):
@@ -101,7 +100,10 @@ class Usuarios(ServiceBase):
         results_all = cursor_getall.fetchall()
         cursor_getall.close()
         conexao_getall.close()
-        return tuple(map(str, results_all))
+        resultado_final = []
+        for j in range(len(results_all)):
+            resultado_final.append((results_all[j][0], results_all[j][1], results_all[j][2].strftime('%d-%m-%Y'), results_all[j][3], results_all[j][4]))
+        return tuple(map(str, resultado_final))
 
     #se o usuário não existe, então retorna 0. Caso contrário, retorna 1
     @rpc(int, _returns=int)
@@ -132,8 +134,8 @@ if __name__ == '__main__':
 
     print ("listening to http://127.0.0.2:8000")
     print ("wsdl is at: http://localhost:8000/?wsdl")
-    logging.basicConfig(level=logging.DEBUG)
-    logging.getLogger('spyne.protocol.xml').setLevel(logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
+    #logging.getLogger('spyne.protocol.xml').setLevel(logging.DEBUG)
 
     server = make_server('127.0.0.2', 8000, wsgi_application)
     server.serve_forever()

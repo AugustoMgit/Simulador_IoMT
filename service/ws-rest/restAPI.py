@@ -56,7 +56,6 @@ class BD(object):
         data = (id_user)
         cursor_ver.execute(sql, data)
         email_ser_check = cursor_ver.fetchall()[0][0]
-        #print(email_ser_check)
         cursor_ver.close()
         conn_ver.close()
         return email_ser_check
@@ -265,7 +264,7 @@ def insertDadosSimualdor():
     if tipo == '' or tipo == None:
         s_error +='Insira o tipo.'
     
-    dataHora =request.form.get('data')
+    dataHora = request.form.get('data')
 
     if len(s_error) > 1:
         return jsonify({"ERROR":s_error.strip(), "Status":0})
@@ -339,19 +338,18 @@ def getDadosUnique(id_user, id_dado):
 def mandaremailsituacoesEspecificas():
     user = request.form.get('id_user')
     message_send_email = request.form.get('msg')
-
-    if user == None:
-        return jsonify({"ERROR": "ID usuario invalido"})
-
-    if message_send_email == None: return {"ERROR": 'mensagem sem conteudo'}
-    email_user = c.returnEmailUser(user)
+    if message_send_email == None: return jsonify({"ERROR": 'mensagem sem conteudo'})
+ 
+    email_user = c.returnEmailUser(id_user)
     if email_user != None:
         try:
             sendEmailUserWarning(email_user, message_send_email)
         except:
-            return {"ERROR":"Erro ao enviar o email"}
+            return jsonify({"ERROR":"Erro ao enviar o email"})
 
-    return {"ERROR":"Nao tem email cadastrado"}
+        return jsonify({"ERROR":""})
+
+    return jsonify({"ERROR":"Nao tem email cadastrado"})
 
 @app.route('/api/get/alldados', methods=['GET'])
 def getAll():
@@ -361,7 +359,7 @@ def getAll():
         for t in tup:
             list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
         return jsonify({"ERROR":"", "len":len(list_json), "Data":list_json})
-    except: return {"ERROR":"problema de autenticacao"}
+    except: return jsonify({"ERROR":"problema de autenticacao"})
 
 #excluir dado específico do usuário
 @app.route("/api/delete/dado/<id_user>/<id_dado>", methods=["DELETE"])
@@ -401,11 +399,15 @@ def getSituacoesEspecifcas(id_user):
 
 @app.route("/api/dadosSituacao1/<id_user>", methods=["GET"])
 def getDadosSituacao1(id_user):
-    tup = c.getDadosSituacaoEspecifica1(id_user)
-    list_json = []
-    for t in tup:
-        list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
-    return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
+    try:
+        tup = c.getDadosSituacaoEspecifica1(id_user)
+        list_json = []
+        for t in tup:
+            list_json.append({'idDado':t[0], 'idUser':t[1], 'valor1':t[2], 'valor2':t[3],'data':t[4], 'tipo':t[5]})
+
+        return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
+    except:
+        return jsonify({"ERROR":"Erro ao buscar os dados", "Status":0})
 
 @app.route("/api/dadosSituacao2/<id_user>", methods=["GET"])
 def getDadosSituacao2(id_user):
@@ -416,7 +418,8 @@ def getDadosSituacao2(id_user):
             list_json.append({'sistolica': t[1], 'diastolica': t[2], 'data': t[3]})
 
         return jsonify({"ERROR":"", "len": len(list_json), "Data":list_json})
-    except: return {"ERROR":"problema de autenticacao"}
+    except: 
+        return jsonify({"ERROR":"Erro ao buscar os dados", "Status":0})
 
 @app.errorhandler(404)
 def page_not_found(e):
