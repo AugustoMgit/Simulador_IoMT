@@ -69,7 +69,44 @@ var soapService = {
                    </spy:addUser>
                 </soap:Body>
              </soap:Envelope>`
-             
+
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", url, true);
+        
+                    xhr.setRequestHeader("Content-Type", "application/xml");
+        
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            resolve(xhr.response);
+                        } else {
+                            reject({
+                                status: xhr.status,
+                                statusText: xhr.statusText
+                            })
+                        }
+                    };
+                    xhr.onerror = function () {
+                        reject({
+                            status: this.status,
+                            statusText: xhr.statusText
+                        });
+                    };
+                    
+                    xhr.send(xml);
+            })
+        },
+        deleteUser(id) {
+            return new Promise((resolve, reject) => {
+                const xml = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap">
+                <soap:Header/>
+                <soap:Body>
+                   <spy:deleteUser>
+                      <!--Optional:-->
+                      <spy:id_user>${id}</spy:id_user>
+                   </spy:deleteUser>
+                </soap:Body>
+             </soap:Envelope>`
+
                     const xhr = new XMLHttpRequest();
                     xhr.open("POST", url, true);
         

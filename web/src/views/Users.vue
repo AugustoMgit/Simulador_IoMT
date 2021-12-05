@@ -62,7 +62,9 @@
               <b-form-row>
                 <b-col>
                   <div class="ml-auto">
-                    <b-button type="submit" variant="primary" class="mr-2">Submit</b-button>
+                    <b-button type="submit" variant="primary" class="mr-2">
+                      <b-spinner small v-if="loadingSubmit"></b-spinner> Submit
+                    </b-button>
                     <b-button type="reset"  variant="secondary">Reset</b-button>
                   </div>
                 </b-col>
@@ -75,11 +77,16 @@
       <b-row>
         <b-col>
           <b-card title="Users">
-            <!-- <b-list-group class="mb-4">
-              <b-list-group-item v-for="user in allUsers" :key="user._text">{{ user._text }}</b-list-group-item>
-            </b-list-group> -->
+            <div class="text-center">
+              <b-spinner v-if="loadingUsers"></b-spinner>
+            </div>
             <b-table striped bordered
-              :items="allUsers">
+              :items="allUsers" :fields="tableFields">
+              
+              <template #cell(actions)="row">
+                <b-button-close @click="deleteUser(row.item.id)"></b-button-close>
+              </template>
+
 
             </b-table>
           </b-card>
@@ -104,8 +111,17 @@ export default {
         gender: '',
         email: '',
       },
+      allUsers: [],
 
-      allUsers: []
+      tableFields: [
+        'name', 'birthday', 'gender', 'email',
+        { key: 'actions', label: 'Actions' }
+      ],
+
+      loadingUsers: false,
+      loadingSubmit: false
+
+
     }
   },
 
@@ -118,6 +134,18 @@ export default {
       .catch(error => {
         console.log(error);
       })
+
+      this.loadingSubmit = true;
+      soapApi.users.registerNewUser(this.newUserForm)
+      .then(() => {
+        this.$bvModal.msgBoxOk('User registered successfully.')
+      })
+      .catch(error => {
+        console.log(error);
+        this.$bvModal.msgBoxOk('An unexpected error occurred!')
+      })
+      .finally(() => this.loadingSubmit = false)
+
       this.getAllUsers();
     },
     onReset() {
@@ -125,11 +153,36 @@ export default {
     },
 
     getAllUsers() {
+      this.loadingUsers = true;
+
       soapApi.users.getAllUsers()
       .then(users => {
         this.allUsers = users;
       })
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error)
+        this.$bvModal.msgBoxOk('An unexpected error occurred!')
+      })
+      .finally(() => this.loadingUsers = false);
+    },
+
+    deleteUser(id) {
+      this.$bvModal.msgBoxConfirm('Are you sure?')
+      .then(isConfirmed => {
+        if(isConfirmed) this.confirmDeleteUser(id);
+      })
+    },
+
+    confirmDeleteUser(id) {
+      soapApi.users.deleteUser(id)
+      .then(() => {
+        this.$bvModal.msgBoxOk('User deleted successfully')
+      })
+      .catch(error => {
+        console.log(error);
+        this.$bvModal.msgBoxOk('An unexpected error occurred!')
+      });
+      this.getAllUsers();
     }
 
   },
