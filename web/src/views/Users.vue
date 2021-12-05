@@ -43,6 +43,20 @@
                   </b-form-group>
                 </b-col>
 
+                <b-col>
+                  <b-form-group
+                    label="E-mail:"
+                    label-for="input-user-email">
+                    <b-form-input
+                      id="input-user-email"
+                      v-model="newUserForm.email"
+                      type="email"
+                      placeholder="Enter e-mail"
+                      required
+                    ></b-form-input>
+                  </b-form-group>
+                </b-col>
+
               </b-form-row>
 
               <b-form-row>
@@ -61,13 +75,13 @@
       <b-row>
         <b-col>
           <b-card title="Users">
-            <b-list-group class="mb-4">
+            <!-- <b-list-group class="mb-4">
               <b-list-group-item v-for="user in allUsers" :key="user._text">{{ user._text }}</b-list-group-item>
-            </b-list-group>
-            <!-- <b-table striped bordered
+            </b-list-group> -->
+            <b-table striped bordered
               :items="allUsers">
 
-            </b-table> -->
+            </b-table>
           </b-card>
         </b-col>
       </b-row>
@@ -88,6 +102,7 @@ export default {
         name: '',
         birthday: '',
         gender: '',
+        email: '',
       },
 
       allUsers: []
@@ -96,7 +111,13 @@ export default {
 
   methods: {
     onSubmit() {
-      soapApi.users.registerNewUser(this.newUserForm);
+      soapApi.users.registerNewUser(this.newUserForm)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => {
+        console.log(error);
+      })
       this.getAllUsers();
     },
     onReset() {
@@ -106,7 +127,6 @@ export default {
     getAllUsers() {
       soapApi.users.getAllUsers()
       .then(users => {
-        console.log(users)
         this.allUsers = users;
       })
       .catch(error => console.log(error));

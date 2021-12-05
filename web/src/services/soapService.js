@@ -1,21 +1,6 @@
 const parse = require('xml-js');
-const users = [
-    {
-        name: 'joao',
-        birthday: '2007-11-09',
-        gender: 'M'
-    },
-    {
-        name: 'maria',
-        birthday: '2002-11-09',
-        gender: 'F'
-    },
-    {
-        name: 'roberson',
-        birthday: '1992-11-09',
-        gender: 'M'
-    } 
-]
+
+const url = 'http://127.0.0.2:8000/?wsdl';
 
 var soapService = {
     
@@ -23,7 +8,6 @@ var soapService = {
         getAllUsers() {
             return new Promise((resolve, reject) => {
                 const xml = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap"><soap:Header/><soap:Body><spy:getAllUsers/></soap:Body></soap:Envelope>';
-                const url = 'http://127.0.0.2:8000/?wsdl';
                 const xhr = new XMLHttpRequest();
                 xhr.open("POST", url, true);
     
@@ -32,12 +16,20 @@ var soapService = {
                 // xhr.setRequestHeader('Access-Control-Allow-Methods', '*');
 
                 function extractUsers(value) {
-                    resolve(value['soap12env:Envelope']['soap12env:Body']['tns:getAllUsersResponse']['tns:getAllUsersResult']['tns:string']);
-                    // let array = [];
-                    // users.forEach(element => {
-                    //     array.push(element._text)
-                    // });
-                    // resolve(array);
+                    let users = value['soap12env:Envelope']['soap12env:Body']['tns:getAllUsersResponse']['tns:getAllUsersResult']['tns:string'];
+                    let array = [];
+                    users.forEach(element => {
+                        let user = {}
+                        let data = element._text.replace('(', '').replace(')', '').replaceAll("'", "");
+                        data = data.split(',')
+                        user.id = data[0];
+                        user.name = data[1];
+                        user.birthday = data[2];
+                        user.gender = data[3];
+                        user.email = data[4];
+                        array.push(user);
+                    });
+                    resolve(array);
                 }
     
                 xhr.onload = function () {
@@ -61,7 +53,47 @@ var soapService = {
             })
         },
         registerNewUser(newUser) {
-            return users.push(newUser);
+            return new Promise((resolve, reject) => {
+                const xml = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap">
+                <soap:Header/>
+                <soap:Body>
+                   <spy:addUser>
+                      <!--Optional:-->
+                      <spy:nome>${newUser.name}</spy:nome>
+                      <!--Optional:-->
+                      <spy:nascimento>${newUser.birthday}</spy:nascimento>
+                      <!--Optional:-->
+                      <spy:sexo>${newUser.gender}</spy:sexo>
+                      <!--Optional:-->
+                      <spy:email>${newUser.email}</spy:email>
+                   </spy:addUser>
+                </soap:Body>
+             </soap:Envelope>`
+             
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", url, true);
+        
+                    xhr.setRequestHeader("Content-Type", "application/xml");
+        
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            resolve(xhr.response);
+                        } else {
+                            reject({
+                                status: xhr.status,
+                                statusText: xhr.statusText
+                            })
+                        }
+                    };
+                    xhr.onerror = function () {
+                        reject({
+                            status: this.status,
+                            statusText: xhr.statusText
+                        });
+                    };
+                    
+                    xhr.send(xml);
+            })
         }
     }
 
