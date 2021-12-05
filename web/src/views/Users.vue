@@ -61,10 +61,13 @@
       <b-row>
         <b-col>
           <b-card title="Users">
-            <b-table striped bordered
+            <b-list-group class="mb-4">
+              <b-list-group-item v-for="user in allUsers" :key="user._text">{{ user._text }}</b-list-group-item>
+            </b-list-group>
+            <!-- <b-table striped bordered
               :items="allUsers">
 
-            </b-table>
+            </b-table> -->
           </b-card>
         </b-col>
       </b-row>
@@ -97,11 +100,16 @@ export default {
       this.getAllUsers();
     },
     onReset() {
-      console.log('form reset')
+      console.log('form reset');
     },
 
     getAllUsers() {
-      this.allUsers = soapApi.users.getAllUsers();
+      soapApi.users.getAllUsers()
+      .then(users => {
+        console.log(users)
+        this.allUsers = users;
+      })
+      .catch(error => console.log(error));
     }
 
   },

@@ -11,7 +11,6 @@ class CorsService(ServiceBase):
     origin = '*'
 
 def _on_method_return_object(ctx):
-    print("hello")
     ctx.transport.resp_headers['Access-Control-Allow-Origin'] = \
                                               ctx.descriptor.service_class.origin
 

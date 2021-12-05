@@ -1,12 +1,4 @@
-import axios from 'axios';
-// import {soap} from 'soap';
-
-// const soapApi = axios.create({
-//     baseUrl: "http://"
-// });
-
-const xml = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap"><soap:Header/><soap:Body><spy:getAllUsers/></soap:Body></soap:Envelope>';
-
+const parse = require('xml-js');
 const users = [
     {
         name: 'joao',
@@ -25,61 +17,48 @@ const users = [
     } 
 ]
 
-var api = {
-
+var soapService = {
+    
     users: {
         getAllUsers() {
-            // const url = 'http://127.0.0.2:8000/?wsdl'
-            // const args = { name: 'john' };
+            return new Promise((resolve, reject) => {
+                const xml = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap"><soap:Header/><soap:Body><spy:getAllUsers/></soap:Body></soap:Envelope>';
+                const url = 'http://127.0.0.2:8000/?wsdl';
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+    
+                xhr.setRequestHeader("Content-Type", "application/xml");
+                // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                // xhr.setRequestHeader('Access-Control-Allow-Methods', '*');
 
-            // soap.createClientAsync(url).then((client) => {
-            //     return client['getAllUsers']();
-            // }).then((response) => {
-            //     console.log(response)
-            // }).catch((error) => {
-            //     console.log(error)
-            // });
-
-            // soap.createClient(url, function(err, client) {
-            //     client.getAllUsers(args, function(err, result) {
-            //         console.log(result);
-            //     })
-            // })
-
-            // ==============================================================
-
-            // let testeXML = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:myap="myapp"><soapenv:Header><myap:MyHeader><!--Optional:--><myap:myinfo>?</myap:myinfo></myap:MyHeader></soapenv:Header><soapenv:Body><myap:MyMethod><!--Optional:--><myap:mymethodparam>?</myap:mymethodparam></myap:MyMethod></soapenv:Body></soapenv:Envelope>'
-
-            axios.post('http://127.0.0.2:8000/?wsdl', xml, {
-                headers: {
-                    'Content-Type': 'application/xml',
-                    'Access-Control-Allow-Origin': '*',
-                    'Access-Control-Allow-Methods': '*'
+                function extractUsers(value) {
+                    resolve(value['soap12env:Envelope']['soap12env:Body']['tns:getAllUsersResponse']['tns:getAllUsersResult']['tns:string']);
+                    // let array = [];
+                    // users.forEach(element => {
+                    //     array.push(element._text)
+                    // });
+                    // resolve(array);
                 }
-            }).then(res => console.log(res));
-
-            //==============================================================
-
-            // const url = 'http://127.0.0.2:8000/?wsdl';
-            // const xhr = new XMLHttpRequest();
-            // xhr.open("GET", url);
-
-            // xhr.setRequestHeader("Content-Type", "application/text");
-            // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
-            // xhr.setRequestHeader('Access-Control-Allow-Methods', '*');
-            
-            // xhr.onreadystatechange = function () {
-            //     console.log(xhr.status);
-            //     console.log(xhr.responseText);
-            //     // if (xhr.readyState === 4) {
-            //     //    console.log(xhr.status);
-            //     //    console.log(xhr.responseText);
-            //     // }
-            // };
-
-            // xhr.send(testeXML);
-
-            // return users;
+    
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        extractUsers(parse.xml2js(xhr.response, {compact: true, spaces: 4}));
+                    } else {
+                        reject({
+                            status: xhr.status,
+                            statusText: xhr.statusText
+                        })
+                    }
+                };
+                xhr.onerror = function () {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                };
+                
+                xhr.send(xml);
+            })
         },
         registerNewUser(newUser) {
             return users.push(newUser);
@@ -88,4 +67,4 @@ var api = {
 
 }
 
-export default api;
+export default soapService;
