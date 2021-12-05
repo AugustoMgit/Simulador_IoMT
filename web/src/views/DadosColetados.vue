@@ -12,13 +12,6 @@
                                         <b-input-group-text label="Name:" label-for="input-user-name" >Username</b-input-group-text>
                                     </template>
                                     <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
-
-                                    <template #append>
-                                    <b-dropdown text="Dropdown" variant="success">
-                                        <b-dropdown-item>Action A</b-dropdown-item>
-                                        <b-dropdown-item>Action B</b-dropdown-item>
-                                    </b-dropdown>
-                                    </template> 
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -30,13 +23,6 @@
                                         <b-input-group-text label="Tipo:" label-for="input-user-tipo" >Tipo</b-input-group-text>
                                     </template>
                                     <b-form-input id="input-user-tipo" v-model="newUserForm.tipo" type="text" placeholder="Enter type" required ></b-form-input>
-
-                                    <template #append>
-                                    <b-dropdown text="Dropdown" variant="success">
-                                        <b-dropdown-item>Action A</b-dropdown-item>
-                                        <b-dropdown-item>Action B</b-dropdown-item>
-                                    </b-dropdown>
-                                    </template>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
