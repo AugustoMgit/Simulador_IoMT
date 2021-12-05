@@ -3,12 +3,10 @@ import pymysql
 from flask import request, jsonify
 import flask
 import datetime
+from flask import Flask
 from flask_cors import CORS
 import utils
 import datetime
-
-import sys
-import os
 
 import smtplib
 from email.mime.multipart import MIMEMultipart
