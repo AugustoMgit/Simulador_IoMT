@@ -394,12 +394,12 @@ def deleteAll(id_user):
 @app.route('/api/generatedata', methods=['POST'])
 def generateData():
     request_data = request.get_json()
-
-    id_user = request_data['id_user']
-    qnt_valores = request_data["qtValores"]
-    min_minutos = request_data["minMinutos"]
-    max_minutos = request_data["maxMinutos"]
-    tipo = request_data["tipo"]
+    print(request_data)
+    id_user = int(request_data['id_user'])
+    qnt_valores = int(request_data["quantidade"])
+    min_minutos = float(request_data["minminuto"])
+    max_minutos = float(request_data["maxminuto"])
+    tipo = request_data["tipos"]
 
     if (tipo == 'TC'):
         utils.TemperaturaCorporal(id_user, qnt_valores, min_minutos, max_minutos)
