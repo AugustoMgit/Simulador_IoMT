@@ -30,20 +30,11 @@ var restService = {
     restApi: {
 
         dados(dadosColetados) {
-            //return axios.post('http://127.0.0.1:5000/api/change/mydado/', dadosColetados);
-            return axios.post('/api/change/mydado/', dadosColetados)
-            .then(response => dadosColetados = response)
-            .catch( error => {            
-                console.log(error);
-            })
+            return axios.post('http://127.0.0.1:5000/api/add', dadosColetados);            
         },
 
         simulador(dadosSimulados) {
-            return axios.post('/api/generatedata', dadosSimulados)
-            .then(response => dadosSimulados = response)
-            .catch( error => {            
-                console.log(error);
-            })
+            return axios.post('http://127.0.0.1:5000/api/generatedata', dadosSimulados)            
         }
     }
 

@@ -2,16 +2,16 @@
     <div>
         <b-row class="mb-2">
         <b-col>
-            <b-card title="Dados coletados">
+            <b-card title="Inserir Dados coletados">
                 <b-form @submit="onSubmit" @reset="onReset">
                     <b-form-row>
                         <b-form-group>
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Name:" label-for="input-user-name" >Username</b-input-group-text>
+                                        <b-input-group-text label="id_user:" label-for="input-user-id_user" >ID</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-name" v-model="newUserForm.name" type="text" placeholder="Enter name" required ></b-form-input>
+                                    <b-form-input id="input-user-id_user" v-model="newUserForm.id_user" type="text" placeholder="Enter id" required ></b-form-input>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -86,7 +86,13 @@ export default {
 
     methods: {
         onSubmit() {
-        restService.restApi.dados(this.newUserForm);
+        restService.restApi.dados(this.newUserForm)
+            .then(() => {
+                console.log("Entrou no then");
+            })
+            .catch( () => {            
+                console.log("deu erro");
+            })
         this.getAllUsers();
         },
         onReset() {
@@ -97,6 +103,10 @@ export default {
         //this.allUsers = restApi.users.getAllUsers();
         }
   },
+
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    },
 
   mounted() {
     this.getAllUsers();
