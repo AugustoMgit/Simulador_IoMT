@@ -1,2 +1,5 @@
 __pycache__
-node_modules
+.idea
+.vscode
+.DS_Store
+./node_modules

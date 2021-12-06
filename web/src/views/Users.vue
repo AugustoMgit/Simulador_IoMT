@@ -87,6 +87,7 @@
                 <b-button-close @click="deleteUser(row.item.id)"></b-button-close>
               </template>
 
+
             </b-table>
           </b-card>
         </b-col>
@@ -110,7 +111,6 @@ export default {
         gender: '',
         email: '',
       },
-
       allUsers: [],
 
       tableFields: [
@@ -121,11 +121,20 @@ export default {
       loadingUsers: false,
       loadingSubmit: false
 
+
     }
   },
 
   methods: {
     onSubmit() {
+      soapApi.users.registerNewUser(this.newUserForm)
+      .then(response => {
+        console.log(response);
+      })
+      .catch(error => {
+        console.log(error);
+      })
+
       this.loadingSubmit = true;
       soapApi.users.registerNewUser(this.newUserForm)
       .then(() => {
@@ -136,6 +145,7 @@ export default {
         this.$bvModal.msgBoxOk('An unexpected error occurred!')
       })
       .finally(() => this.loadingSubmit = false)
+
       this.getAllUsers();
     },
     onReset() {
@@ -144,6 +154,7 @@ export default {
 
     getAllUsers() {
       this.loadingUsers = true;
+
       soapApi.users.getAllUsers()
       .then(users => {
         this.allUsers = users;
