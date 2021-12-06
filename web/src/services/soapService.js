@@ -1,149 +1,139 @@
+const parse = require('xml-js');
 
-from typing import Tuple
-import logging
-import datetime
-from spyne import Application, rpc, ServiceBase, Unicode, Iterable
-from spyne.model.complex import Array
-from spyne.protocol.xml import XmlDocument
-from spyne.protocol.soap import Soap12
-from spyne.server.wsgi import WsgiApplication
-from wsgiref.simple_server import make_server
-import json
-import pymysql
+const url = 'http://127.0.0.2:8000/?wsdl';
 
+var soapService = {
+    
+    users: {
+        getAllUsers() {
+            return new Promise((resolve, reject) => {
+                const xml = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap"><soap:Header/><soap:Body><spy:getAllUsers/></soap:Body></soap:Envelope>';
+                const xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+    
+                xhr.setRequestHeader("Content-Type", "application/xml");
+                // xhr.setRequestHeader("Access-Control-Allow-Origin", "*");
+                // xhr.setRequestHeader('Access-Control-Allow-Methods', '*');
 
-ENDPOINT="aws-db.cu6xdlhm2sr3.us-east-2.rds.amazonaws.com"
-PORT=3306
-USR="admin"
-REGION="us-east-2b"
-DBNAME="iomt"
+                function extractUsers(value) {
+                    let users = value['soap12env:Envelope']['soap12env:Body']['tns:getAllUsersResponse']['tns:getAllUsersResult']['tns:string'];
+                    let array = [];
+                    users.forEach(element => {
+                        let user = {}
+                        let data = element._text.replace('(', '').replace(')', '').replaceAll("'", "");
+                        data = data.split(',')
+                        user.id = data[0];
+                        user.name = data[1];
+                        user.birthday = data[2];
+                        user.gender = data[3];
+                        user.email = data[4];
+                        array.push(user);
+                    });
+                    resolve(array);
+                }
+    
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        extractUsers(parse.xml2js(xhr.response, {compact: true, spaces: 4}));
+                    } else {
+                        reject({
+                            status: xhr.status,
+                            statusText: xhr.statusText
+                        })
+                    }
+                };
+                xhr.onerror = function () {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                };
+                
+                xhr.send(xml);
+            })
+        },
+        registerNewUser(newUser) {
+            return new Promise((resolve, reject) => {
+                const xml = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap">
+                <soap:Header/>
+                <soap:Body>
+                   <spy:addUser>
+                      <!--Optional:-->
+                      <spy:nome>${newUser.name}</spy:nome>
+                      <!--Optional:-->
+                      <spy:nascimento>${newUser.birthday}</spy:nascimento>
+                      <!--Optional:-->
+                      <spy:sexo>${newUser.gender}</spy:sexo>
+                      <!--Optional:-->
+                      <spy:email>${newUser.email}</spy:email>
+                   </spy:addUser>
+                </soap:Body>
+             </soap:Envelope>`
 
-class BD(object):
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", url, true);
+        
+                    xhr.setRequestHeader("Content-Type", "application/xml");
+        
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            resolve(xhr.response);
+                        } else {
+                            reject({
+                                status: xhr.status,
+                                statusText: xhr.statusText
+                            })
+                        }
+                    };
+                    xhr.onerror = function () {
+                        reject({
+                            status: this.status,
+                            statusText: xhr.statusText
+                        });
+                    };
+                    
+                    xhr.send(xml);
+            })
+        },
+        deleteUser(id) {
+            return new Promise((resolve, reject) => {
+                const xml = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:spy="spyne.examples.hello.soap">
+                <soap:Header/>
+                <soap:Body>
+                   <spy:deleteUser>
+                      <!--Optional:-->
+                      <spy:id_user>${id}</spy:id_user>
+                   </spy:deleteUser>
+                </soap:Body>
+             </soap:Envelope>`
 
-    def verifyExists(self, id_user):
-        conn_ver = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
-        cursor_ver = conn_ver.cursor()
-        sql = "select id FROM usuario WHERE id = %s"
-        data = (id_user)
-        cursor_ver.execute(sql, data)
-        #quando não existir o id
-        if cursor_ver.rowcount==0:
-            cursor_ver.close()
-            conn_ver.close()
-            return 0
-        else:
-            cursor_ver.close()
-            conn_ver.close()
-            return 1
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", url, true);
+        
+                    xhr.setRequestHeader("Content-Type", "application/xml");
+        
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            resolve(xhr.response);
+                        } else {
+                            reject({
+                                status: xhr.status,
+                                statusText: xhr.statusText
+                            })
+                        }
+                    };
+                    xhr.onerror = function () {
+                        reject({
+                            status: this.status,
+                            statusText: xhr.statusText
+                        });
+                    };
+                    
+                    xhr.send(xml);
+            })
+        }
+    }
 
-c = BD()
+}
 
-
-class Usuarios(ServiceBase):
-
-    @rpc(Unicode, Unicode, Unicode, Unicode, _returns=int)
-    def addUser(self, nome, nascimento, sexo, email):
-        try:
-            conexao = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
-            cursor_add = conexao.cursor()
-            sql = "INSERT INTO usuario (nome, nascimento, sexo, email) VALUES (%s, %s, %s, %s)"
-            data = (nome,nascimento,sexo, email)
-            cursor_add.execute(sql, data)
-            conexao.commit()
-            cursor_add.close()
-            conexao.close()
-            return 1
-        except: return 0
-
-    @rpc(int, Unicode, Unicode, Unicode, _returns=int)
-    def alterInfosUser(self, id_user, name='', nascimento='', sexo=''):
-        #usuário não existe? se não, retorna 0. Caso contrário, retorna 1 (deu certo)
-        if c.verifyExists(id_user) == 0: return 0
-        try:
-            connection = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
-            cursor = connection.cursor()
-            data = ()
-            sql_parcial = "UPDATE usuario SET"
-            if name != '':
-                sql_parcial +=  " nome = %s" 
-                data = data + (name,)
-            if nascimento != '':
-                if 'nome' in sql_parcial:sql_parcial +=','
-                sql_parcial += " nascimento = %s"
-                data = data + (nascimento,)
-            if sexo != '':
-                if 'nome' in sql_parcial or 'nascimento' in sql_parcial:sql_parcial +=','
-                sql_parcial += " sexo = %s"
-                data = data + (sexo,)
-            sql_completo = sql_parcial + ' WHERE id = %s'
-            data = data + (str(id_user),)
-            cursor.execute(sql_completo, data)
-            connection.commit()
-            cursor.close()
-            connection.close()
-            return 1
-        except: return 0
-
-    @rpc(int, _returns=Iterable(Unicode))
-    def getOneUser(self, id_user):
-        if c.verifyExists(id_user) == 0: return tuple(map(str, ['Usuario nao existe']))
-        conexao_getone = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
-        cursor_getone = conexao_getone.cursor()
-        sql = "SELECT * FROM usuario WHERE id=%s"
-        cursor_getone.execute(sql, (id_user))
-        results_one = cursor_getone.fetchall()
-        cursor_getone.close()
-        conexao_getone.close()
-        resultado_final = []
-        for j in range(len(results_one)):
-            resultado_final.append((results_one[j][0], results_one[j][1], results_one[j][2].strftime('%d-%m-%Y'), results_one[j][3], results_one[j][4]))
-        return tuple(map(str, resultado_final))
-
-    @rpc(_returns=Iterable(Unicode))
-    def getAllUsers(self):
-        conexao_getall = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
-        cursor_getall = conexao_getall.cursor()
-        sql = "SELECT * FROM usuario"
-        cursor_getall.execute(sql)
-        results_all = cursor_getall.fetchall()
-        cursor_getall.close()
-        conexao_getall.close()
-        resultado_final = []
-        for j in range(len(results_all)):
-            resultado_final.append((results_all[j][0], results_all[j][1], results_all[j][2].strftime('%d-%m-%Y'), results_all[j][3], results_all[j][4]))
-        return tuple(map(str, resultado_final))
-
-    #se o usuário não existe, então retorna 0. Caso contrário, retorna 1
-    @rpc(int, _returns=int)
-    def deleteUser(self, id_user):
-        #usuário existe?
-        if c.verifyExists(id_user) == 0:
-            return 0
-        try:
-            conn = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
-            cursor = conn.cursor()
-            sql = "DELETE FROM usuario WHERE id = %s"
-            data = (id_user)
-            cursor.execute(sql, data)
-            conn.commit()
-            cursor.close()
-            conn.close()
-            return 1
-        except: return 0
-
-
-application = Application([Usuarios], 'spyne.examples.hello.soap',
-                          in_protocol=Soap12(validator='lxml'),
-                          out_protocol=Soap12())
-
-wsgi_application = WsgiApplication(application)
-
-if __name__ == '__main__':
-
-    print ("listening to http://127.0.0.2:8000")
-    print ("wsdl is at: http://localhost:8000/?wsdl")
-    #logging.basicConfig(level=logging.DEBUG)
-    #logging.getLogger('spyne.protocol.xml').setLevel(logging.DEBUG)
-
-    server = make_server('127.0.0.2', 8000, wsgi_application)
-    server.serve_forever()
+export default soapService;
