@@ -9,16 +9,9 @@
                             <b-col>
                                 <b-input-group>
                                     <template #prepend>
-                                        <b-input-group-text label="Usuarios:" label-for="input-user-name" > Usuarios</b-input-group-text>
+                                        <b-input-group-text label="id_user:" label-for="input-user-id_user" > id</b-input-group-text>
                                     </template>
-                                    <b-form-input id="input-user-usuarios" v-model="newUserForm.usuarios" type="text" placeholder="Enter usuarios" required ></b-form-input>
-
-                                    <template #append>
-                                    <b-dropdown text="Dropdown" variant="success">
-                                        <b-dropdown-item>Action A</b-dropdown-item>
-                                        <b-dropdown-item>Action B</b-dropdown-item>
-                                    </b-dropdown>
-                                    </template>
+                                    <b-form-input id="input-user-id_user" v-model="newUserForm.id_user" type="text" placeholder="Enter ID" required ></b-form-input>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -30,13 +23,6 @@
                                         <b-input-group-text label="Tipos:" label-for="input-user-tipos" >Tipos</b-input-group-text>
                                     </template>
                                     <b-form-input id="input-user-tipos" v-model="newUserForm.tipos" type="text" placeholder="Enter tipos" required ></b-form-input>
-
-                                    <template #append>
-                                    <b-dropdown text="Dropdown" variant="success">
-                                        <b-dropdown-item>Action A</b-dropdown-item>
-                                        <b-dropdown-item>Action B</b-dropdown-item>
-                                    </b-dropdown>
-                                    </template>
                                 </b-input-group>
                             </b-col>
                         </b-form-group>
@@ -116,7 +102,13 @@ export default {
 
     methods: {
         onSubmit() {
-        restService.restApi.simulador(this.newUserForm);
+        restService.restApi.simulador(this.newUserForm)
+            .then(() => {
+                console.log("Entrou no then");
+            })
+            .catch( () => {            
+                console.log("deu erro");
+            })
         this.getAllUsers();
         },
         onReset() {

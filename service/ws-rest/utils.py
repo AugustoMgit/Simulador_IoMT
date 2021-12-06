@@ -6,6 +6,7 @@ import json, requests
 
 URL_BASE = "http://localhost:5000/api"
 
+
 def PA(id_user, qtValores, minMinutos, MaxMinutos):
     normais = int(qtValores * 0.8)
     anormais = int(qtValores * 0.2)
@@ -40,13 +41,13 @@ def PA(id_user, qtValores, minMinutos, MaxMinutos):
         dateTime = (date + delta)
 
         # chamar ws-rest
-        dados =  {
-                  "id_user": 1,
-                  "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
-                  "valor1": valores.iloc[i]["Sistolica"],
-                  "valor2": valores.iloc[i]["Diastolica"],
-                  "tipo": "PA"
-                }
+        dados = {
+            "id_user": 1,
+            "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
+            "valor1": valores.iloc[i]["Sistolica"],
+            "valor2": valores.iloc[i]["Diastolica"],
+            "tipo": "PA"
+        }
 
         response = requests.put(URL_BASE + "/addsimulador", data=dados)
         if (response.status_code != 200):
@@ -67,7 +68,7 @@ def FrequenciaCardiaca(qtValores):
     valoresAnormais2 = np.random.uniform(101, 200, int(anormais / 2))
     valoresAnormais = np.concatenate((valoresAnormais1, valoresAnormais2))
 
-    return(valoresNormais, valoresAnormais)
+    return (valoresNormais, valoresAnormais)
 
 
 def SP02(id_user, qtValores, minMinutos, MaxMinutos):
@@ -97,18 +98,18 @@ def SP02(id_user, qtValores, minMinutos, MaxMinutos):
     for i in range(len(valores)):
         valores[i] = round(valores[i], 2)
         frequenciaCardiaca[i] = round(frequenciaCardiaca[i], 2)
-        minutes +=random.randint(minMinutos, MaxMinutos)
+        minutes += random.randint(minMinutos, MaxMinutos)
         delta = timedelta(minutes=minutes)
         dateTime = (date + delta)
 
         # chamar ws-rest
         dados = {
-                  "id_user": 1,
-                  "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
-                  "valor1": valores[i],
-                  "valor2": frequenciaCardiaca[i],
-                  "tipo": "SP02"
-                }
+            "id_user": 1,
+            "data": dateTime.strftime("%Y-%m-%d %H:%M:%S"),
+            "valor1": valores[i],
+            "valor2": frequenciaCardiaca[i],
+            "tipo": "SP02"
+        }
 
         response = requests.put(URL_BASE + "/addsimulador", data=dados)
         if (response.status_code != 200):
@@ -157,6 +158,7 @@ def TemperaturaCorporal(id_user, qtValores, minMinutos, MaxMinutos):
 
     return ('Dados inseridos com sucesso!')
 
+
 def verificarSituacoesEspecificas1(id_user):
     # Verificar se existe alguma situação especifica
     msg = ""
@@ -179,7 +181,7 @@ def verificarSituacoesEspecificas1(id_user):
 
     response = requests.post(URL_BASE + "/emailsituacoesEspecificas", data=dados)
     if (response.status_code != 200):
-        print (response.text)
+        print(response.text)
 
 
 def verificarSituacoesEspecificas2(id_user):
@@ -197,7 +199,7 @@ def verificarSituacoesEspecificas2(id_user):
     for d in dados:
         diastolica.append(float(d['diastolica']))
         sistolica.append(float(d['sistolica']))
-    
+
     ### chamar end point para enviar email...
     if (abs(diastolica[0] - diastolica[1]) > 10 and abs(diastolica[1] - diastolica[2]) > 10):
         msg = 'Atenção!!! Sua pressão arterial diastolica mudou brutamente em um intervalo de tempo! Entre em contato com um médico!!\n'
@@ -219,5 +221,3 @@ def verificarSituacoesEspecificas2(id_user):
 def verificarSituacoesEspecificas(id_user):
     verificarSituacoesEspecificas1(id_user)
     verificarSituacoesEspecificas2(id_user)
-
-
