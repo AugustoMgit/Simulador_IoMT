@@ -194,7 +194,7 @@ class BD(object):
         if self.verifyUserExists(id_user) == 0: return {"ERROR": "Usuario nao existe", "Status": 0}
         conn = pymysql.connect(host=ENDPOINT, user=USR, passwd="admin1234", port=PORT, database=DBNAME)
         cursor = conn.cursor()
-        sql = "SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora FROM dadoscoletados d WHERE d.tipo = 'PA' AND d.usuario = %s AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp() ORDER BY dataHora DESC LIMIT 3"
+        sql = "SELECT d.usuario, d.valor1 AS sistolica, d.valor2 AS diastolica, d.dataHora FROM DadosColetados d WHERE d.tipo = 'PA' AND d.usuario = %s AND dataHora BETWEEN date_sub(current_timestamp(), INTERVAL 24 HOUR) AND current_timestamp() ORDER BY dataHora DESC LIMIT 3"
         data = (id_user)
         cursor.execute(sql, data)
         results_all = cursor.fetchall()

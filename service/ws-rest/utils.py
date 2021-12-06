@@ -188,10 +188,12 @@ def verificarSituacoesEspecificas2(id_user):
     # Verificar se existe alguma situação especifica
     msg = ""
     response = requests.get(URL_BASE + "/dadosSituacao2/" + str(id_user))
+
     if (response.status_code != 200):
         return 'Ocorreu um erro!'
 
     situacoesEspecificas = json.loads(response.text)
+
     dados = situacoesEspecificas['Data']
     diastolica = []
     sistolica = []
