@@ -11,7 +11,6 @@
       <b-navbar-nav>
           <b-nav-item class="mr-3" to="/">Home</b-nav-item>
           <b-nav-item class="mr-3" to="/users">Users</b-nav-item>
-          <b-nav-item class="mr-3" to="#">Statistics</b-nav-item>
           <b-nav-item class="mr-3" to="/dados-coletados">Dados Coletados</b-nav-item>
           <b-nav-item class="mr-3" to="/simulador">Simulador</b-nav-item>
       </b-navbar-nav>
