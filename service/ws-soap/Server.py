@@ -1,6 +1,6 @@
-from typing import Tuple
-import logging
-import datetime
+#from typing import Tuple
+#import logging
+#import datetime
 from spyne import Application, rpc, ServiceBase, Unicode, Iterable
 from spyne.model.complex import Array
 from spyne.protocol.xml import XmlDocument
@@ -54,8 +54,8 @@ class Usuarios(ServiceBase):
             return 1
         except: return 0
 
-    @rpc(int, Unicode, Unicode, Unicode, _returns=int)
-    def alterInfosUser(self, id_user, name='', nascimento='', sexo=''):
+    @rpc(int, Unicode, Unicode, Unicode,Unicode, _returns=int)
+    def alterInfosUser(self, id_user, name='', nascimento='', sexo='', email=''):
         #usuário não existe? se não, retorna 0. Caso contrário, retorna 1 (deu certo)
         if c.verifyExists(id_user) == 0: return 0
         try:
@@ -74,6 +74,10 @@ class Usuarios(ServiceBase):
                 if 'nome' in sql_parcial or 'nascimento' in sql_parcial:sql_parcial +=','
                 sql_parcial += " sexo = %s"
                 data = data + (sexo,)
+            if email != '':
+                if 'nome' in sql_parcial or 'nascimento' in sql_parcial or 'sexo' in sql_parcial:sql_parcial +=','
+                sql_parcial += " email = %s"
+                data = data + (email,)
             sql_completo = sql_parcial + ' WHERE id = %s'
             data = data + (str(id_user),)
             cursor.execute(sql_completo, data)
